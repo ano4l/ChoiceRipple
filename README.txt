@@ -13,7 +13,7 @@ Keep the css and js folders beside index.html.
 What's inside
 -------------
 index.html        App shell
-css/styles.css    Styling (phone-first; ripple-ring visual system)
+css/styles.css    Styling (phone-first; dark "midnight" theme, ripple rings)
 js/data.js        12 topics, 24 scenarios, 72 choice-specific reflections
 js/art.js         Anime-style scene art, drawn as SVG - one scene per scenario
 js/app.js         Profiles, practice flow, parent and teacher views
