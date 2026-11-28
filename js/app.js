@@ -5,6 +5,19 @@
   var app = document.getElementById('app');
   var KEY = 'choiceRipple.v1';
   var DAY = 86400000;
+  /* Student access codes and PINs are a preview of the future sign-in. Off unless js/config.js turns it on (or ?access=on). */
+  var ACCESS = !!(window.CRConfig && window.CRConfig.studentAccess) || /[?&]access=on\b/.test(location.search);
+  var CODE_ABC = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // no 0/O or 1/I/L, so a code is easy to read out and type
+  function rnd(n) {
+    if (window.crypto && window.crypto.getRandomValues) { var a = new Uint32Array(1); window.crypto.getRandomValues(a); return a[0] % n; }
+    return Math.floor(Math.random() * n);
+  }
+  function newCode(s) {
+    var c;
+    do { c = ''; for (var i = 0; i < 6; i++) c += CODE_ABC.charAt(rnd(CODE_ABC.length)); } while (s.students.some(function (x) { return x.code === c; }));
+    return c;
+  }
+  function newPin() { return ('000' + rnd(10000)).slice(-4); }
 
   /* ───────── state ───────── */
   function daysAgo(n, h) { var d = new Date(Date.now() - n * DAY); d.setHours(h || 16, 12, 0, 0); return d.toISOString(); }
@@ -85,6 +98,7 @@
     s.groups.forEach(function (g) { g.optional = g.optional || []; });
     /* every student has a character they can edit; older profiles start from their preset picture */
     s.students.forEach(function (x) { if (!x.look) x.look = A.preset(x.avatar || 0); });
+    s.students.forEach(function (x) { if (!x.code) x.code = newCode(s); if (!/^\d{4}$/.test(x.pin || '')) x.pin = newPin(); });
     return s;
   }
   var state;
@@ -94,6 +108,7 @@
   }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* keep running in memory */ } }
   state = load();
+  save(); // keeps freshly made access codes and PINs the same on the next visit
 
   /* ───────── helpers ───────── */
   function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -132,7 +147,7 @@
   function groupStudents(g) { return g.students.map(student).filter(Boolean); }
   function newStudent(name, grade) {
     var id = 's' + (state.nextId++);
-    state.students.push({ id: id, name: name, grade: grade, look: A.preset(state.students.length + 1), joined: new Date().toISOString() });
+    state.students.push({ id: id, name: name, grade: grade, look: A.preset(state.students.length + 1), joined: new Date().toISOString(), code: newCode(state), pin: newPin() });
     return id;
   }
   function dropGroupAssign(sid, gid, id) {
@@ -294,6 +309,9 @@
   var trail = [];            // pages visited in the app, so "Back" returns to the previous one
   var draft = null;          // the character and name being edited on the profile page
   var folds = {}, foldsFor = ''; // which fold-away sections are open on the current page
+  var joinCode = '';         // access code carried in by a sign-in link (#/join/CODE), the link a QR code will hold
+  var showPin = null;        // the student whose PIN an adult has chosen to show on this page
+  var pendingAssign = false; // "Assign practice" was tapped on a card: open the next page at its assign list
   function route() {
     var h = location.hash.replace(/^#\/?/, '');
     var p = h.split('/').filter(Boolean);
@@ -305,8 +323,19 @@
   function render(keepScroll) {
     Voice.stop();
     var r = route(), html, nav = 'home', here = location.hash || '#/';
+    if (r.name === 'join') {
+      /* a student's own sign-in link: carry the code to the sign-in page, where they still type their PIN */
+      if (ACCESS) {
+        joinCode = String(r.a || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+        var cur = activeStudent();
+        if (cur && cur.code !== joinCode) { state.active = null; save(); }
+      }
+      location.replace('#/student');
+      return;
+    }
     if (trail[trail.length - 2] === here && !keepScroll) trail.pop(); else if (trail[trail.length - 1] !== here) trail.push(here);
-    if (foldsFor !== here) { folds = {}; foldsFor = here; }
+    if (foldsFor !== here) { folds = {}; foldsFor = here; showPin = null; }
+    if (pendingAssign) folds.assign = true;
     if (r.name === 'home' || r.name === 'student' || r.name === 'parent' || r.name === 'teacher') lastRole = r.name;
     if (!(r.name === 'student' && r.a === 'profile')) draft = null;
     lookNow = null;
@@ -329,6 +358,11 @@
     });
     document.body.setAttribute('data-view', r.name);
     if (!keepScroll) window.scrollTo(0, 0);
+    if (pendingAssign) {
+      pendingAssign = false;
+      var fa = document.getElementById('fold-assign');
+      if (fa) { fa.scrollIntoView({ block: 'start' }); var fs = fa.querySelector('summary'); if (fs) fs.focus({ preventScroll: true }); }
+    }
   }
   function focusTitle() { var t = document.querySelector('.step-title'); if (t) t.focus({ preventScroll: true }); }
 
@@ -451,6 +485,18 @@
       '<p class="hint">Not on the list? A parent or teacher can add you from their view.</p>' +
     '</section></div>';
   }
+  function viewStudentSignIn() {
+    return '<div class="page narrow"><section class="panel center signin">' +
+      '<p class="eyebrow">Student practice</p><h1>Open your practice</h1>' +
+      '<p class="lede">Type the access code and 4-digit PIN your parent or teacher gave you. You don’t need an email address.</p>' +
+      '<form id="signInForm" class="signin-form" novalidate>' +
+        '<label class="field"><span>Access code</span><input name="code" class="codein" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="6 letters and numbers" value="' + esc(joinCode) + '"></label>' +
+        '<label class="field"><span>PIN</span><input name="pin" class="codein" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="4 digits"></label>' +
+        '<p id="signInMsg" class="voice-status" role="alert"></p>' +
+        '<button class="btn primary big block" type="submit">Open my practice ' + ICON.arrow + '</button></form>' +
+      '<p class="hint">No code yet, or forgot your PIN? Ask your parent or teacher. They can give you a new PIN.</p>' +
+    '</section></div>';
+  }
   function scenarioRow(st, s) {
     var done = isDone(st.id, s.id), e = assignEntry(st.id, s.id), started = isStarted(st.id, s.id);
     var lock = openOne(st.id), locked = lock && lock !== s.id;
@@ -463,7 +509,7 @@
   }
   function viewStudent() {
     var st = activeStudent();
-    if (!st) return viewStudentPicker();
+    if (!st) return ACCESS ? viewStudentSignIn() : viewStudentPicker();
     var done = doneList(st.id), w = waiting(st.id), o = optional(st.id), total = scopeCount(st.id), going = openOne(st.id), nextId = going || w[0] || o[0];
     var nxOpt = nextId && o.indexOf(nextId) >= 0;
     var pct = total ? Math.round(done.length / total * 100) : 0;
@@ -477,7 +523,7 @@
       '<section class="me">' + ringAvatar(st, 'xl', pct, done.length + ' of ' + total + ' practices done') +
         '<div class="me-main"><p class="eyebrow">' + esc(st.grade) + '</p><h1>' + lets('Let’s practice, ' + esc(first(st.name)) + '.') + '</h1>' +
           '<p class="me-stats"><strong>' + done.length + '</strong> of ' + total + ' practices done' + (w.length ? ' · <strong>' + w.length + '</strong> assigned and waiting' : '') + ' · <strong>' + credits(st.id) + '</strong> Courage Credits</p></div>' +
-        '<div class="me-actions"><a class="btn small ghost" href="#/student/profile">Edit my character</a><button type="button" class="btn small quiet" data-act="switch-student">Switch student</button></div>' +
+        '<div class="me-actions"><a class="btn small ghost" href="#/student/profile">Edit my character</a><button type="button" class="btn small quiet" data-act="switch-student">' + (ACCESS ? 'Sign out' : 'Switch student') + '</button></div>' +
       '</section>' + up +
       (w.length ? '<section class="block"><div class="block-head"><h2>Assigned to you</h2><p>' + plural(w.length, 'practice') + ' picked for you. Finish each one before you start the next.</p></div>' + rows(w) + '</section>' : '') +
       (o.length ? '<section class="block"><div class="block-head"><h2>Optional practices</h2><p>Extra practices you can try if you want to.</p></div>' + rows(o) + '</section>' : '') +
@@ -762,14 +808,15 @@
   function viewParent() {
     return '<div class="page">' +
       '<div class="ptop">' + backBtn('#/') + '<a class="btn small ghost" href="#/library">Browse the full library</a></div>' +
-      '<section class="phead"><p class="eyebrow">Parent view</p><h1>Your students</h1><p class="lede">Open a student’s profile to see what they’ve practiced, what they chose, and what they read afterward.</p></section>' +
+      '<section class="phead"><p class="eyebrow">Parent view</p><h1>Your students</h1><p class="lede">Assign practice to a student, or open their profile to see what they’ve practiced, what they chose, and what they wrote.</p></section>' +
       '<div class="kids">' + family().map(function (s) {
         var done = doneList(s.id).length, w = waiting(s.id).length, total = scopeCount(s.id), pct = total ? Math.round(done / total * 100) : 0;
-        return '<a class="kid" href="#/parent/' + s.id + '">' + ringAvatar(s, 'xl', pct, done + ' of ' + total + ' practices done') +
-          '<div class="kid-main"><h2>' + esc(s.name) + '</h2><p class="kid-grade">' + esc(s.grade) + '</p>' +
+        return '<article class="kid">' + ringAvatar(s, 'xl', pct, done + ' of ' + total + ' practices done') +
+          '<div class="kid-main"><h2><a href="#/parent/' + s.id + '">' + esc(s.name) + '</a></h2><p class="kid-grade">' + esc(s.grade) + '</p>' +
             '<p class="kid-stats"><strong>' + done + '</strong> ' + (done === 1 ? 'practice' : 'practices') + ' done' + (w ? ' · ' + w + ' assigned and waiting' : '') + '</p>' +
             '<p class="kid-last">' + lastPracticed(s.id) + '</p></div>' +
-          '<span class="kid-open">Open profile ' + ICON.arrow + '</span></a>';
+          '<div class="kid-acts"><a class="btn small primary" data-act="assign-for" href="#/parent/' + s.id + '" aria-label="Assign practice to ' + esc(s.name) + '">' + ICON.plus + ' Assign practice</a>' +
+            '<a class="btn small ghost" href="#/parent/' + s.id + '" aria-label="Open ' + esc(s.name) + '’s profile">Open profile ' + ICON.arrow + '</a></div></article>';
       }).join('') + '</div>' +
       '<form class="panel add" id="addStudentForm"><h2>Add a student</h2><p class="hint">Creates a profile they can open from the Student view. They can change their own name and make their character look like them.</p>' +
         '<div class="add-row"><label class="field"><span>First and last name</span><input name="name" maxlength="40" required autocomplete="off" placeholder="e.g. Sam Rivera"></label>' +
@@ -865,6 +912,11 @@
         snap) +
       fold('topics', 'Progress by topic', '<strong>' + topicsTouched + ' of ' + D.topics.length + '</strong> topics practiced so far.', '<ul class="tlist">' + byTopic + '</ul>') +
       fold('assign', 'Assign practice to ' + fn, '<strong>Assign</strong> puts a practice in ' + fn + '’s “Up next.” <strong>Optional</strong> makes it available without requiring it. Tap again to remove.', assign, done.length + queued.length === 0) +
+      (ACCESS ? fold('access', 'Student sign-in', fn + ' opens only their own profile with this access code and a 4-digit PIN. No email address needed.',
+        '<dl class="access"><div><dt>Access code</dt><dd>' + esc(st.code) + '</dd></div><div><dt>PIN</dt><dd>' + (showPin === sid ? esc(st.pin) : '••••') + '</dd></div></dl>' +
+        '<div class="actions"><button type="button" class="btn small ghost" data-act="pin-show" data-sid="' + sid + '" aria-pressed="' + (showPin === sid) + '">' + (showPin === sid ? 'Hide PIN' : 'Show PIN') + '</button>' +
+          '<button type="button" class="btn small ghost" data-act="pin-reset" data-sid="' + sid + '">Reset PIN</button></div>' +
+        '<p class="hint">Sign-in link for ' + fn + ': <span class="mono">' + esc(location.href.split('#')[0] + '#/join/' + st.code) + '</span><br>It opens the sign-in page with the code filled in; ' + fn + ' still types the PIN. A printable QR code of this link is planned.</p>') : '') +
     '</div>';
   }
 
@@ -884,11 +936,12 @@
       '<section class="phead"><p class="eyebrow">' + esc(t.role) + ' view · ' + esc(t.name) + '</p><h1>Your classes and groups</h1><p class="lede">Assign practice to a whole class, a small group, or one student. Then see how they’re choosing and where a conversation would help.</p></section>' +
       (state.groups.length ? '<div class="kids">' + state.groups.map(function (g) {
         var k = gStats(g);
-        return '<a class="kid gcard" href="#/teacher/g/' + g.id + '"><div class="kid-main"><p class="eyebrow">' + esc(g.kind) + '</p><h2>' + esc(g.name) + '</h2>' +
+        return '<article class="kid gcard"><div class="kid-main"><p class="eyebrow">' + esc(g.kind) + '</p><h2><a href="#/teacher/g/' + g.id + '">' + esc(g.name) + '</a></h2>' +
           '<div class="stack">' + k.students.slice(0, 6).map(function (s) { return avatar(s, 'md'); }).join('') + '<span>' + plural(k.students.length, 'student') + '</span></div>' +
           '<div class="meter" role="img" aria-label="' + k.done + ' of ' + k.total + ' assigned practices done"><i style="width:' + k.pct + '%"></i></div>' +
           '<p class="kid-stats">' + (k.ids.length ? '<strong>' + k.done + '</strong> of ' + k.total + ' assigned practices done' : 'Nothing assigned yet') + '</p></div>' +
-          '<span class="kid-open">Open ' + ICON.arrow + '</span></a>';
+          '<div class="kid-acts"><a class="btn small primary" data-act="assign-for" href="#/teacher/g/' + g.id + '" aria-label="Assign practice to everyone in ' + esc(g.name) + '">' + ICON.plus + ' Assign practice</a>' +
+            '<a class="btn small ghost" href="#/teacher/g/' + g.id + '" aria-label="Open ' + esc(g.name) + '">Open ' + ICON.arrow + '</a></div></article>';
       }).join('') + '</div>' : '<p class="empty">No classes or groups yet. Add one below to get started.</p>') +
       '<div class="pcols">' +
         '<form class="panel add" id="addGroupForm"><h2>Add a class or group</h2><p class="hint">Then add students and assign practice to all of them at once.</p>' +
@@ -1049,6 +1102,25 @@
       case 'pick-student':
         state.active = el.getAttribute('data-id'); save(); sessionDone = []; render();
         break;
+      case 'assign-for':
+        e.preventDefault();
+        pendingAssign = true;
+        go(el.getAttribute('href'));
+        break;
+      case 'pin-show':
+        showPin = showPin === el.getAttribute('data-sid') ? null : el.getAttribute('data-sid');
+        folds.access = true; render(true);
+        break;
+      case 'pin-reset':
+        var ps = student(el.getAttribute('data-sid'));
+        if (!ps) return;
+        ask({
+          title: 'Reset the PIN for ' + ps.name + '?',
+          body: 'The old PIN stops working straight away. ' + first(ps.name) + ' will need the new one to open their practice.',
+          ok: 'Reset PIN',
+          then: function () { ps.pin = newPin(); showPin = ps.id; save(); folds.access = true; render(true); }
+        });
+        break;
       case 'switch-student':
         state.active = null; save(); sessionDone = []; render();
         break;
@@ -1166,6 +1238,18 @@
   document.addEventListener('submit', function (e) {
     var f = e.target;
     e.preventDefault();
+    if (f.id === 'signInForm') {
+      var code = f.elements.code.value.toUpperCase().replace(/[^A-Z0-9]/g, ''), pin = f.elements.pin.value.trim();
+      var hit = state.students.filter(function (x) { return x.code === code && x.pin === pin; })[0];
+      if (!hit) {
+        /* one message for a wrong code or a wrong PIN, so it never confirms that a code exists */
+        document.getElementById('signInMsg').textContent = 'That code and PIN don’t match. Check them and try again, or ask your parent or teacher.';
+        f.elements.pin.value = ''; f.elements.pin.focus();
+        return;
+      }
+      state.active = hit.id; joinCode = ''; sessionDone = []; save(); render();
+      return;
+    }
     if (f.id === 'choiceForm') { if (play && play.sel) commitChoice(); return; }
     if (f.id === 'reflectForm') { if (play && play.sel) finishReflect(f); return; }
     if (f.id === 'profileForm') {

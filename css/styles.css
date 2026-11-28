@@ -912,3 +912,23 @@ dialog.ask .actions { justify-content: flex-end; margin-top: 22px; }
   .stepper.all li + li { margin-left: 12px; }
   .stepper.all li + li::before, .stepper.all li.was + li::before { left: -12px; width: 12px; }
 }
+
+/* ── student access codes and PINs (preview, behind the switch in js/config.js) ── */
+.signin-form { width: min(100%, 340px); margin: 26px auto 0; text-align: left; display: grid; gap: 4px; }
+.signin-form .btn { margin-top: 14px; }
+.signin-form .voice-status { text-align: center; }
+.codein { font: 750 22px/1.2 ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace; letter-spacing: .22em; text-transform: uppercase; text-align: center; }
+.codein::placeholder { font: 500 15px/1.6 var(--font); letter-spacing: 0; text-transform: none; }
+.access { display: flex; flex-wrap: wrap; gap: 12px; }
+.access > div { flex: 1 1 150px; padding: 14px 18px; border: 1px solid var(--line-2); border-radius: 16px; background: rgba(9, 13, 30, .5); }
+.access dt { font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.access dd { margin: 6px 0 0; font: 750 26px/1.2 ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace; letter-spacing: .2em; color: #fff; }
+.fold-body > .actions { margin-top: 14px; }
+.mono { font-family: ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace; font-size: 13px; color: var(--ink); overflow-wrap: anywhere; }
+
+/* ── assign straight from a child's or a class's card ── */
+.kid-acts { flex-basis: 100%; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding-top: 14px; border-top: 1px solid var(--line); }
+.kid-main h2 a { color: inherit; text-decoration: none; }
+.kid-main h2 a:hover { color: var(--violet-ink); text-decoration: underline; text-underline-offset: 4px; }
+article.kid:hover { transform: none; }
+@media (max-width: 560px) { .kid-acts .btn { flex: 1 1 auto; } }

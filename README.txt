@@ -19,6 +19,7 @@ js/data-faith.js    The 16 Faith and Spiritual Growth scenarios
 js/art.js           Anime-style art drawn as SVG: characters, scenes, and a
                     picture for every choice and its outcome
 js/app.js           Profiles, the practice flow, parent and teacher views
+js/config.js        Switches you can turn on or off (see "Switches" below)
 
 The library: 48 scenarios, 12 topics, 4 scenarios in each
 ---------------------------------------------------------
@@ -88,6 +89,28 @@ Assign   Pick the type of practice (Everyday Life or Faith-based), then
          practice is from.
 Back     Every parent and teacher page has a Back button that returns to
          the page you came from.
+
+Switches
+--------
+js/config.js holds the app's switches. Open it in Notepad, change the
+value, save, and reload the page.
+
+studentAccess (off by default): a preview of the future sign-in.
+  Off  Students pick their profile from a list.
+  On   Students type their own access code and 4-digit PIN to open only
+       their profile ("Sign out" replaces "Switch student"). Each
+       student's profile in the parent and teacher views gains a
+       "Student sign-in" section with the access code, the PIN (hidden
+       until "Show PIN"), a "Reset PIN" button, and a sign-in link.
+  To look at it without editing the file, add ?access=on to the address
+  before the #, for example  index.html?access=on#/student
+  Every student already has a code and PIN saved, so turning the switch
+  on later needs no other change.
+  Not built yet (these need a server, so they are not in this prototype):
+  parent and teacher accounts with their own sign-in, QR codes, PINs
+  stored safely off the device, and a limit on wrong PIN tries. Until
+  then the Parent and Teacher tabs are open to anyone using the browser,
+  so the PIN is a preview of the flow, not real protection.
 
 Editing content
 ---------------
