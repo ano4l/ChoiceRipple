@@ -10,7 +10,7 @@
   /* Two sections, twelve topics, four scenarios in each topic. */
   var GROUPS = [
     { id: 'everyday', name: 'Everyday Life', blurb: 'School, friends, feelings and staying safe.' },
-    { id: 'faith', name: 'Faith and Spiritual Growth', blurb: 'Faith-based practice that families, churches and schools can choose to assign.' }
+    { id: 'faith', name: 'Faith and Spiritual Growth', tab: 'Faith-based', blurb: 'Faith-based practice that families, churches and schools can choose to assign.' }
   ];
   var TOPICS = [
     { id: 'bullying', group: 'everyday', name: 'Bullying and exclusion', short: 'Bullying & exclusion', bg: '#f3e4d4', ink: '#7a4719' },

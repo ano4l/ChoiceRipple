@@ -62,13 +62,15 @@
           heated: { tries: [{ c: 'snap', at: daysAgo(12) }, { c: 'walk', at: daysAgo(12), note: 'I picked walking away because yelling back just makes it bigger. Next time I will take a breath first.' }], value: 'Staying calm' },
           picture: { tries: [{ c: 'support', at: daysAgo(8) }], value: 'Kindness' },
           badgrade: { tries: [{ c: 'dismiss', at: daysAgo(5) }, { c: 'offer', at: daysAgo(5) }], value: 'Kindness' },
-          joke: { tries: [{ c: 'silent', at: daysAgo(2), note: 'I stayed quiet because I did not want them to pick on me too. Next time I could ask Ben to sit with me.' }], value: 'Fitting in' }
+          joke: { tries: [{ c: 'silent', at: daysAgo(2), note: 'I stayed quiet because I did not want them to pick on me too. Next time I could ask Ben to sit with me.' }], value: 'Fitting in' },
+          /* started (a choice was made) but the reflection is not finished yet */
+          talkedover: { tries: [{ c: 'giveup', at: daysAgo(0, 9) }], open: true }
         },
         s2: { directions: { tries: [{ c: 'raise', at: daysAgo(3) }], value: 'Courage' } }
       },
       assigned: {
-        s1: [{ id: 'talkedover', by: 'parent' }, { id: 'phonegrab', by: 'parent' }, { id: 'apology', by: 'parent' }, { id: 'stagefright', by: 'parent', opt: true }],
-        s2: [{ id: 'dare', by: 'parent' }, { id: 'nickname', by: 'parent' }, { id: 'ragequit', by: 'parent', opt: true }]
+        s1: [{ id: 'heated', by: 'parent' }, { id: 'badgrade', by: 'parent' }, { id: 'talkedover', by: 'parent' }, { id: 'phonegrab', by: 'parent' }, { id: 'apology', by: 'parent' }, { id: 'stagefright', by: 'parent', opt: true }],
+        s2: [{ id: 'directions', by: 'parent' }, { id: 'dare', by: 'parent' }, { id: 'nickname', by: 'parent' }, { id: 'ragequit', by: 'parent', opt: true }]
       }
     });
   }
@@ -103,6 +105,16 @@
   function rec(sid, scid) { return prog(sid)[scid]; }
   /* a practice counts once its reflection is finished; `open` marks one that was started and not finished */
   function isDone(sid, scid) { var r = rec(sid, scid); return !!(r && r.tries && r.tries.length && !r.open); }
+  function isStarted(sid, scid) { var r = rec(sid, scid); return !!(r && r.open && r.tries && r.tries.length); }
+  /* the practice this student has started and not finished, if there is one: it has to be finished before another opens */
+  function openOne(sid) {
+    var p = prog(sid);
+    return Object.keys(p).filter(function (id) { return isStarted(sid, id) && D.scenario(id); })[0] || null;
+  }
+  function progressChip(sid, scid) {
+    return isDone(sid, scid) ? '<span class="status done">' + ICON.check + ' Completed</span>'
+      : isStarted(sid, scid) ? '<span class="status started">Started</span>' : '<span class="status todo">Not started</span>';
+  }
   function choiceOf(s, cid) { return s.choices.filter(function (c) { return c.id === cid; })[0]; }
   function pending(sid, opt) { return assignedTo(sid).filter(function (a) { return !!a.opt === opt && !isDone(sid, a.id) && D.scenario(a.id); }).map(function (a) { return a.id; }); }
   function waiting(sid) { return pending(sid, false); }
@@ -155,9 +167,9 @@
   var CREDIT = 20;
   function credits(sid) { return doneList(sid).length * CREDIT; }
   var WRAP = {
-    strong: 'You thought it through and picked a step that helps. That’s practice you can use when it’s real.',
-    mixed: 'You thought it through and found a way to make your choice stronger. That’s practice you can use when it’s real.',
-    risky: 'You looked honestly at a tough choice and found a better option. That takes courage.'
+    strong: 'You thought it through and picked a step that helps.',
+    mixed: 'You thought it through and found a way to make that choice stronger.',
+    risky: 'You looked honestly at a tough choice and found a better option.'
   };
   function rings(cls, n) {
     var c = '';
@@ -176,6 +188,9 @@
     sparks: '<svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><path d="M30 4c1.6 8.6 4.4 11.4 13 13c-8.6 1.6-11.4 4.4-13 13c-1.6-8.6-4.4-11.4-13-13c8.6-1.6 11.4-4.4 13-13z" fill="currentColor"/><path d="M12 26c1 5.4 2.6 7 8 8c-5.4 1-7 2.6-8 8c-1-5.4-2.6-7-8-8c5.4-1 7-2.6 8-8z" fill="currentColor" opacity=".8"/></svg>',
     bubble: '<svg viewBox="0 0 32 32" width="34" height="34" aria-hidden="true"><path d="M7 5h18a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H14l-6.5 5v-5H7a4 4 0 0 1-4-4V9a4 4 0 0 1 4-4z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M9.5 11.5h13M9.5 16.5h8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
     pin: '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.2" fill="currentColor"/></svg>',
+    burst: '<svg class="burst" viewBox="0 0 32 32" aria-hidden="true"><path d="M7 21h9M9.5 9.5l5.5 6M20 4.5l1.5 8" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round"/></svg>',
+    lock: '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2.5" fill="currentColor"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+    plus: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
     ripple: '<svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="16" cy="16" r="3" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="8" opacity=".7"/><circle cx="16" cy="16" r="13" opacity=".35"/></g></svg>'
   };
 
@@ -199,6 +214,7 @@
       if (/online/i.test(n)) s += 10;
       if (/^(samantha|ava|allison|susan|zoe|nicky|karen|serena|moira|tessa|daniel)\b/i.test(n)) s += 25;
       if (/aria|jenny|emma|sonia|libby|michelle|ana\b|andrew|brian/i.test(n)) s += 8;
+      if (/natural/i.test(n) && /\b(ava|emma|andrew|brian)\b/i.test(n)) s += 14; /* the newest, most human-sounding Edge voices */
       if (/compact|espeak|albert|bad news|bahh|bells|boing|bubbles|cellos|fred|jester|organ|trinoids|whisper|zarvox|junior|ralph|kathy|superstar|wobble|good news|deranged|hysterical|pipe/i.test(n)) s -= 90;
       var l = v.lang.toLowerCase().replace('_', '-');
       if (l === want) s += 12; else if (l === 'en-us') s += 8;
@@ -218,6 +234,8 @@
       this.key = key;
       var self = this, v = this.best(), natural = v && this.score(v) >= 40, list = [];
       parts.filter(Boolean).forEach(function (t) {
+        /* speech engines stumble on quote marks and separators, so read the words without them */
+        t = String(t).replace(/[“”"]/g, '').replace(/\s*·\s*/g, ', ').replace(/\s*[—–]\s*/g, ', ').replace(/…/g, '.');
         (String(t).match(/[^.!?…]+[.!?…]+[”’"')]*|[^.!?…]+$/g) || [t]).forEach(function (x) { if (x.trim()) list.push(x.trim()); });
       });
       list.forEach(function (text, i) {
@@ -241,6 +259,13 @@
       var st = document.getElementById('voiceStatus');
       if (st) st.textContent = msg || '';
     },
+    tip: function () {
+      if (!this.ok) return 'Read-aloud isn’t available in this browser.';
+      var v = this.best();
+      if (!v) return '';
+      return this.score(v) >= 40 ? 'This is a natural-sounding voice.'
+        : 'This device only has basic voices. For a natural voice, open ChoiceLab in Microsoft Edge or Google Chrome, or download an “Enhanced” voice in your iPhone, iPad or Mac settings (Accessibility → Spoken Content → Voices).';
+    },
     options: function () {
       var self = this, cur = this.best(), vs = this.list().slice().sort(function (a, b) { return self.score(b) - self.score(a); });
       if (!vs.length) return '<option value="">Best voice on this device</option>';
@@ -249,7 +274,11 @@
   };
   if (Voice.ok) {
     Voice.list();
-    window.speechSynthesis.onvoiceschanged = function () { var sel = document.getElementById('voicePick'); if (sel) sel.innerHTML = Voice.options(); };
+    window.speechSynthesis.onvoiceschanged = function () {
+      var sel = document.getElementById('voicePick'), tip = document.getElementById('voiceTip');
+      if (sel) sel.innerHTML = Voice.options();
+      if (tip) tip.textContent = Voice.tip();
+    };
   }
   function speakBtn(key, label, cls) {
     return '<button type="button" class="speak ' + (cls || '') + '" data-act="speak" data-speak="' + key + '" data-label="' + esc(label) + '" aria-pressed="false">' + ICON.sound + '<span>' + esc(label) + '</span></button>';
@@ -264,6 +293,7 @@
   var lookNow = null;        // whose character is drawn into the pictures on this page
   var trail = [];            // pages visited in the app, so "Back" returns to the previous one
   var draft = null;          // the character and name being edited on the profile page
+  var folds = {}, foldsFor = ''; // which fold-away sections are open on the current page
   function route() {
     var h = location.hash.replace(/^#\/?/, '');
     var p = h.split('/').filter(Boolean);
@@ -276,6 +306,7 @@
     Voice.stop();
     var r = route(), html, nav = 'home', here = location.hash || '#/';
     if (trail[trail.length - 2] === here && !keepScroll) trail.pop(); else if (trail[trail.length - 1] !== here) trail.push(here);
+    if (foldsFor !== here) { folds = {}; foldsFor = here; }
     if (r.name === 'home' || r.name === 'student' || r.name === 'parent' || r.name === 'teacher') lastRole = r.name;
     if (!(r.name === 'student' && r.a === 'profile')) draft = null;
     lookNow = null;
@@ -310,8 +341,9 @@
   }
   function groupTabs(act, cur, withAll) {
     var tabs = (withAll ? [{ id: 'all', name: 'All ' + D.scenarios.length }] : []).concat(D.groups);
-    return '<div class="filter gtabs" role="group" aria-label="Choose a section">' + tabs.map(function (g) {
-      return '<button type="button" class="fchip' + (cur === g.id ? ' is-on' : '') + '" data-act="' + act + '" data-group="' + g.id + '" aria-pressed="' + (cur === g.id) + '">' + esc(g.name) + '</button>';
+    return '<div class="filter gtabs" role="group" aria-label="Choose a type of practice">' + tabs.map(function (g) {
+      var n = g.id === 'all' ? '' : ' · ' + D.scenarios.filter(function (s) { return D.topic(s.topic).group === g.id; }).length;
+      return '<button type="button" class="fchip' + (cur === g.id ? ' is-on' : '') + '" data-act="' + act + '" data-group="' + g.id + '" aria-pressed="' + (cur === g.id) + '">' + esc(g.tab || g.name) + n + '</button>';
     }).join('') + '</div>';
   }
   function viewHome() {
@@ -330,11 +362,12 @@
         '</aside></div>' +
       '</section>' +
 
-      '<section class="steps3 four" aria-label="How a practice works">' +
-        '<div class="step3"><span class="num">1</span><div><h3>See the situation</h3><p>A short real-life moment with a picture. Listen reads it aloud.</p></div></div>' +
-        '<div class="step3"><span class="num">2</span><div><h3>Make your choice</h3><p>Three honest options, each with a picture of what it looks like.</p></div></div>' +
-        '<div class="step3"><span class="num">3</span><div><h3>See what could happen</h3><p>The likely outcome of that exact choice, as cause and effect.</p></div></div>' +
-        '<div class="step3"><span class="num">4</span><div><h3>Reflect and keep going</h3><p>Write why you chose it and what you’d do next time. Then earn credit.</p></div></div>' +
+      '<section class="steps3 five" aria-label="How a practice works">' +
+        '<div class="step3"><span class="num">1</span><div><h3>Situation</h3><p>A short real-life moment with a picture. Listen reads it aloud.</p></div></div>' +
+        '<div class="step3"><span class="num">2</span><div><h3>Your choice</h3><p>Three honest options, each with a picture of what it looks like.</p></div></div>' +
+        '<div class="step3"><span class="num">3</span><div><h3>What could happen</h3><p>The likely outcome of that exact choice, as cause and effect.</p></div></div>' +
+        '<div class="step3"><span class="num">4</span><div><h3>Reflect</h3><p>Write why you chose it and what you’d do next time, in 10 words or more.</p></div></div>' +
+        '<div class="step3"><span class="num">5</span><div><h3>Complete</h3><p>A message for that choice, Courage Credits, and the next practice.</p></div></div>' +
       '</section>' +
 
       '<section class="block"><div class="block-head"><h2>Try a scenario</h2><p>No sign-in needed. Nothing is saved while you preview.</p></div>' +
@@ -370,12 +403,35 @@
   /* the assign list used on a student's profile and on a class page: pick a section, then topics */
   function assignList(rowBtns) {
     var g = D.group(assignGroup) || D.groups[0];
-    return groupTabs('assign-group', g.id) + '<p class="hint gblurb">' + esc(g.blurb) + '</p><div class="agroups">' + D.topics.filter(function (t) { return t.group === g.id; }).map(function (t) {
+    return '<p class="pick-type">Type of practice</p>' + groupTabs('assign-group', g.id) + '<p class="hint gblurb"><strong>' + esc(g.name) + '.</strong> ' + esc(g.blurb) + '</p><div class="agroups">' + D.topics.filter(function (t) { return t.group === g.id; }).map(function (t) {
       var rows = D.scenarios.filter(function (s) { return s.topic === t.id; }).map(function (s) {
         return '<li class="arow">' + art(s.id, 'art-tiny') + '<span class="arow-main"><strong>' + esc(s.title) + '</strong><span>' + esc(s.ask) + ' <a href="#/preview/' + s.id + '">Preview</a></span></span>' + rowBtns(s) + '</li>';
       }).join('');
       return '<div class="agroup"><h3>' + chip(t.id) + '</h3><ul>' + rows + '</ul></div>';
     }).join('') + '</div>';
+  }
+  /* a section adults can open when they want the detail; it remembers whether it is open while they stay on the page */
+  function fold(key, title, sub, body, def) {
+    var open = folds[key] == null ? !!def : folds[key];
+    return '<section class="panel foldp" id="fold-' + key + '"><details class="fold' + (key === 'assign' ? ' assign' : '') + '" data-fold="' + key + '"' + (open ? ' open' : '') + '>' +
+      '<summary><div><h2>' + title + '</h2><p class="hint">' + sub + '</p></div><span class="fold-cue"><span class="fold-word" aria-hidden="true"></span><span class="chev" aria-hidden="true"></span></span></summary>' +
+      '<div class="fold-body">' + body + '</div></details></section>';
+  }
+  /* ask before anything that removes a student, a group or saved progress */
+  function ask(o) {
+    var d = document.createElement('dialog');
+    d.className = 'ask';
+    d.setAttribute('aria-labelledby', 'askTitle');
+    d.innerHTML = '<h2 id="askTitle">' + esc(o.title) + '</h2><p>' + esc(o.body) + '</p><div class="actions">' +
+      '<button type="button" class="btn ghost" data-no>Cancel</button><button type="button" class="btn danger" data-yes>' + esc(o.ok) + '</button></div>';
+    if (!d.showModal) { if (window.confirm(o.title + '\n\n' + o.body)) o.then(); return; }
+    document.body.appendChild(d);
+    d.querySelector('[data-no]').onclick = function () { d.close(); };
+    d.querySelector('[data-yes]').onclick = function () { d.close('yes'); };
+    d.addEventListener('click', function (e) { if (e.target === d) d.close(); });
+    d.addEventListener('close', function () { var yes = d.returnValue === 'yes'; d.remove(); if (yes) o.then(); });
+    d.showModal();
+    d.querySelector('[data-no]').focus();
   }
   function pairBtns(act, attrs, on) {
     var b = function (opt, isOn, label) {
@@ -396,23 +452,26 @@
     '</section></div>';
   }
   function scenarioRow(st, s) {
-    var done = isDone(st.id, s.id), e = assignEntry(st.id, s.id), started = !done && !!rec(st.id, s.id);
-    var status = done ? '<span class="status done">' + ICON.check + ' Done</span>'
-      : e ? '<span class="status assigned">' + esc(fromLabel(st.id, s.id)) + (e.opt ? ' · optional' : '') + '</span>' : '';
-    return '<article class="row' + (done ? ' is-done' : '') + '">' + art(s.id, 'art-thumb') +
+    var done = isDone(st.id, s.id), e = assignEntry(st.id, s.id), started = isStarted(st.id, s.id);
+    var lock = openOne(st.id), locked = lock && lock !== s.id;
+    var status = (e ? '<span class="status assigned">' + esc(fromLabel(st.id, s.id)) + (e.opt ? ' · optional' : '') + '</span>' : '') +
+      (done ? '<span class="status done">' + ICON.check + ' Done</span>' : started ? '<span class="status started">Started</span>' : '<span class="status todo">Not started</span>');
+    return '<article class="row' + (done ? ' is-done' : '') + (locked ? ' is-locked' : '') + '">' + art(s.id, 'art-thumb') +
       '<div class="row-main"><div class="row-tags">' + chip(s.topic) + status + '</div><h3>' + esc(s.title) + '</h3><p class="place">' + ICON.pin + esc(s.place) + '</p></div>' +
-      '<a class="btn small ' + (done ? 'ghost' : 'primary') + '" href="#/practice/' + s.id + '">' + (done ? 'Practice again' : started ? 'Keep going' : 'Start') + '</a></article>';
+      (locked ? '<span class="lockmsg">' + ICON.lock + ' Finish “' + esc(D.scenario(lock).title) + '” first</span>'
+        : '<a class="btn small ' + (done ? 'ghost' : 'primary') + '" href="#/practice/' + s.id + '">' + (done ? 'Practice again' : started ? 'Keep going' : 'Start') + '</a>') + '</article>';
   }
   function viewStudent() {
     var st = activeStudent();
     if (!st) return viewStudentPicker();
-    var done = doneList(st.id), w = waiting(st.id), o = optional(st.id), total = scopeCount(st.id), nextId = w[0] || o[0];
+    var done = doneList(st.id), w = waiting(st.id), o = optional(st.id), total = scopeCount(st.id), going = openOne(st.id), nextId = going || w[0] || o[0];
+    var nxOpt = nextId && o.indexOf(nextId) >= 0;
     var pct = total ? Math.round(done.length / total * 100) : 0;
     var nx = nextId && D.scenario(nextId);
     var rows = function (ids) { return '<div class="rows">' + ids.map(function (id) { return scenarioRow(st, D.scenario(id)); }).join('') + '</div>'; };
     var up = nx
-      ? '<section class="upnext">' + rings('', 8) + '<div class="upnext-main">' + art(nx.id, 'art-card') + '<div><p class="eyebrow">Up next · ' + esc(fromLabel(st.id, nx.id)) + (w.length ? '' : ' · optional') + '</p><h2>' + esc(nx.title) + '</h2><div class="row-tags">' + chip(nx.topic) + '<span class="place">' + ICON.pin + esc(nx.place) + '</span></div></div></div>' +
-        '<a class="btn sun big" href="#/practice/' + nx.id + '">Start practice ' + ICON.arrow + '</a></section>'
+      ? '<section class="upnext">' + rings('', 8) + '<div class="upnext-main">' + art(nx.id, 'art-card') + '<div><p class="eyebrow">' + (going ? 'Finish this one first' : 'Up next') + (assignEntry(st.id, nx.id) ? ' · ' + esc(fromLabel(st.id, nx.id)) : '') + (nxOpt ? ' · optional' : '') + '</p><h2>' + esc(nx.title) + '</h2><div class="row-tags">' + chip(nx.topic) + '<span class="place">' + ICON.pin + esc(nx.place) + '</span></div></div></div>' +
+        '<a class="btn sun big" href="#/practice/' + nx.id + '">' + (going ? 'Keep going ' : 'Start practice ') + ICON.arrow + '</a></section>'
       : '<section class="upnext all-done">' + rings('', 8) + '<div><p class="eyebrow">' + (done.length ? 'All caught up' : 'Nothing assigned yet') + '</p><h2>' + (done.length ? 'You’ve finished everything assigned to you.' : 'Your practices will show up here.') + '</h2><p>' + (done.length ? 'You can practice one again below to try a different choice.' : 'Ask your parent or teacher to assign your first practice.') + '</p></div></section>';
     return '<div class="page">' +
       '<section class="me">' + ringAvatar(st, 'xl', pct, done.length + ' of ' + total + ' practices done') +
@@ -420,7 +479,7 @@
           '<p class="me-stats"><strong>' + done.length + '</strong> of ' + total + ' practices done' + (w.length ? ' · <strong>' + w.length + '</strong> assigned and waiting' : '') + ' · <strong>' + credits(st.id) + '</strong> Courage Credits</p></div>' +
         '<div class="me-actions"><a class="btn small ghost" href="#/student/profile">Edit my character</a><button type="button" class="btn small quiet" data-act="switch-student">Switch student</button></div>' +
       '</section>' + up +
-      (w.length ? '<section class="block"><div class="block-head"><h2>Assigned to you</h2><p>' + plural(w.length, 'practice') + ' picked for you. Finish these first.</p></div>' + rows(w) + '</section>' : '') +
+      (w.length ? '<section class="block"><div class="block-head"><h2>Assigned to you</h2><p>' + plural(w.length, 'practice') + ' picked for you. Finish each one before you start the next.</p></div>' + rows(w) + '</section>' : '') +
       (o.length ? '<section class="block"><div class="block-head"><h2>Optional practices</h2><p>Extra practices you can try if you want to.</p></div>' + rows(o) + '</section>' : '') +
       (done.length ? '<section class="block"><div class="block-head"><h2>Finished</h2><p>Practice one again to try a different choice.</p></div>' + rows(done.map(function (s) { return s.id; })) + '</section>' : '') +
     '</div>';
@@ -463,7 +522,7 @@
           '<fieldset class="field"><legend>Glasses</legend><div class="optchips"><label class="optchip"><input type="checkbox" name="glasses"' + (L.glasses ? ' checked' : '') + '><span>I wear glasses</span></label></div></fieldset>' +
           swatches('bg', O.bg, L.bg || O.bg[0], 'Background') +
           '<div class="field voice-field"><label for="voicePick"><span>Read-aloud voice</span></label><div class="voice-row"><select id="voicePick" name="voice">' + Voice.options() + '</select>' +
-            '<button type="button" class="btn small ghost" data-act="voice-test">' + ICON.sound + ' Hear it</button></div></div>' +
+            '<button type="button" class="btn small ghost" data-act="voice-test">' + ICON.sound + ' Hear it</button></div><p class="hint" id="voiceTip">' + esc(Voice.tip()) + '</p></div>' +
         '</div>' +
         '<div class="actions maker-actions"><button class="btn primary" type="submit">Save my character</button><a class="btn ghost" href="#/student">Cancel</a></div>' +
       '</form></div>';
@@ -481,7 +540,7 @@
   /* ───────── PLAY: situation → your choice → what could happen → reflect → complete ───────── */
   var STEPS = ['Situation', 'Your choice', 'What could happen', 'Reflect', 'Complete'];
   function stepper(n) {
-    return '<ol class="stepper" aria-label="Step ' + Math.min(n, 5) + ' of 5">' + STEPS.map(function (l, i) {
+    return '<ol class="stepper' + (n > 5 ? ' all' : '') + '" aria-label="' + (n > 5 ? 'All 5 steps done' : 'Step ' + n + ' of 5') + '">' + STEPS.map(function (l, i) {
       return '<li class="' + (i + 1 < n ? 'was' : i + 1 === n ? 'now' : '') + '"' + (i + 1 === n ? ' aria-current="step"' : '') + '><span>' + (i + 1 < n ? ICON.check : i + 1) + '</span>' + l + '</li>';
     }).join('') + '</ol>';
   }
@@ -489,7 +548,14 @@
     var s = D.scenario(id), st = activeStudent();
     if (!s) { go(mode === 'practice' ? '#/student' : '#/'); return null; }
     if (mode === 'practice' && (!st || !canSee(st.id, id))) { go('#/student'); return null; }
-    if (!play || play.id !== id || play.mode !== mode) play = { id: id, mode: mode, step: 1, sel: null, note: '', first: mode === 'practice' && !isDone(st.id, id) };
+    if (mode === 'practice') { var lock = openOne(st.id); if (lock && lock !== id) { go('#/student'); return null; } }
+    if (!play || play.id !== id || play.mode !== mode) {
+      play = { id: id, mode: mode, step: 1, sel: null, note: '', first: mode === 'practice' && !isDone(st.id, id) };
+      if (mode === 'practice' && isStarted(st.id, id)) {
+        var lt = rec(st.id, id).tries, lc = lt[lt.length - 1].c;
+        if (choiceOf(s, lc)) { play.sel = lc; play.step = 3; }
+      }
+    }
     if (play.step > 2 && !play.sel) play.step = 2;
     return [playSituation, playChoose, playOutcome, playReflect, playComplete][play.step - 1](s);
   }
@@ -497,7 +563,7 @@
     return mode === 'practice' ? '<a class="back" href="#/student">' + ICON.back + ' My practice</a>' : backBtn(lastPage);
   }
   function playTop(mode, n) {
-    return '<div class="play-top">' + backLink(mode) + stepper(n) + '</div>' +
+    return '<div class="play-top' + (n > 5 ? ' done' : '') + '">' + (n > 5 ? '<p class="cmp-step">Scenario complete (5/5)</p>' : backLink(mode)) + stepper(n) + '</div>' +
       (mode === 'preview' && n < 5 ? '<p class="banner">You’re previewing. Nothing is saved. <a href="#/student">Start practicing as a student</a></p>' : '');
   }
   function scnHead(s) {
@@ -574,7 +640,12 @@
     '</div>';
   }
   /* 4 · Reflect: the student writes at least ten words before they can finish */
-  var REFLECT_Q = 'Why did you choose that? What might you do next time?';
+  var REFLECT_ASK = {
+    strong: 'Why did you choose that? What would help you do it when it’s real?',
+    mixed: 'Why did you choose that? What could you add next time to make it stronger?',
+    risky: 'Why did you choose that? What might you do differently next time?'
+  };
+  function reflectQ(c) { return REFLECT_ASK[c.kind] || REFLECT_ASK.mixed; }
   function countText(n) {
     return n >= MIN_WORDS ? '<strong>' + n + ' words.</strong> You’re ready to finish.' : n + ' of ' + MIN_WORDS + ' words. ' + (n ? 'Keep going.' : 'Write at least ' + MIN_WORDS + ' words to finish.');
   }
@@ -591,8 +662,8 @@
       '<div class="reflect-head"><div><p class="eyebrow">Reflect</p><h1 class="reflect-title step-title" tabindex="-1">Think it through.</h1></div>' + speakBtn('reflect', 'Listen') + '</div>' +
       '<section class="rcard next"><h2>' + K.nextLabel + '</h2><p>' + said(c.next) + '</p></section>' +
       '<form id="reflectForm" class="rform" novalidate>' +
-        '<label class="rform-q" for="reflectText">' + REFLECT_Q + '</label>' +
-        '<p class="hint" id="reflectHint">' + (must ? 'Write at least ' + MIN_WORDS + ' words in your own words. There are no wrong answers.' : 'Students write at least ' + MIN_WORDS + ' words here before they can finish. In a preview you can skip it.') + '</p>' +
+        '<label class="rform-q" for="reflectText">' + reflectQ(c) + '</label>' +
+        '<p class="hint" id="reflectHint">' + (must ? 'Write at least ' + MIN_WORDS + ' words in your own words to finish. There are no wrong answers.' : 'Students write at least ' + MIN_WORDS + ' words here before they can finish. In a preview you can skip it.') + '</p>' +
         '<textarea id="reflectText" name="note" rows="4" maxlength="600" aria-describedby="reflectHint wordCount" placeholder="I chose that because… Next time I could…">' + esc(play.note) + '</textarea>' +
         '<p id="wordCount" class="wordcount' + (n >= MIN_WORDS ? ' is-ready' : '') + '" role="status" aria-live="polite">' + countText(n) + '</p>' +
         values +
@@ -617,13 +688,15 @@
   }
   function playComplete(s) {
     var w = wrapUp(s), c = w.c, mode = play.mode, nx = nextTarget(s);
-    var away = mode === 'practice' ? '<a class="btn ghost" href="#/student">Return to my practice</a>' : '<a class="btn ghost" data-act="back" href="' + esc(lastPage) + '">Back to where you were</a>';
+    /* the last picture is a helpful outcome with the student in it: their own choice when it helps, otherwise the stronger step */
+    var best = c.kind === 'strong' ? c : s.choices.filter(function (x) { return x.kind === 'strong'; })[0] || c;
+    var cap = best === c ? 'What your choice can lead to' : 'Next time you could: ' + esc(best.label);
+    var away = mode === 'practice' ? '<a class="btn ghost" href="#/student">Return to assignments</a>' : '<a class="btn ghost" data-act="back" href="' + esc(lastPage) + '">Back to where you were</a>';
     return '<div class="page play complete kind-' + c.kind + '">' + playTop(mode, 6) +
-      '<header class="cmp-head"><p class="eyebrow">' + ICON.check + ' Scenario complete</p>' +
-        '<h1 class="cmp-title step-title" id="completeTitle" tabindex="-1">' + w.title[0] + ' <em>' + w.title[1] + '</em></h1>' + speakBtn('complete', 'Listen') + '</header>' +
-      '<p class="cmp-sum">You chose: <strong>' + esc(c.label) + '</strong><span>' + w.sum + '</span></p>' +
-      art(s.id, 'art-hero') +
-      '<blockquote class="closing cmp-close"><span class="closing-bg" aria-hidden="true">' + rings('', 6) + '</span>' + ICON.ripple + '<p>' + said(c.close) + '</p></blockquote>' +
+      '<header class="cmp-head"><h1 class="cmp-title step-title" id="completeTitle" tabindex="-1">' + ICON.burst + w.title[0] + ' <em>' + w.title[1] + '</em></h1></header>' +
+      '<p class="cmp-sum">You chose: <strong>' + esc(c.label) + '</strong>' + (/[.!?”’"]$/.test(c.label) ? '' : '.') + '<span>' + w.sum + ' ' + said(c.close) + '</span></p>' +
+      '<p class="cmp-listen">' + speakBtn('complete', 'Listen') + '</p>' +
+      '<figure class="cmp-fig"><span class="art art-hero">' + A.effectPic(s, best, lookNow, 'Picture: ' + (best === c ? 'what your choice can lead to' : 'what a stronger step can lead to')) + '</span><figcaption>' + cap + '</figcaption></figure>' +
       '<section class="credit" aria-label="Courage Credits"><span class="sparks" aria-hidden="true">' + ICON.sparks + '</span><span class="sparks r" aria-hidden="true">' + ICON.sparks + '</span>' +
         '<p class="credit-amt">' + w.amount + '</p><p class="credit-why">' + w.why + '</p>' +
         (w.total != null ? '<p class="credit-total">Your total: ' + w.total + '</p>' : '') + '</section>' +
@@ -704,12 +777,12 @@
         '<button class="btn primary" type="submit">Add student</button></div></form>' +
     '</div>';
   }
-  function historyItem(st, s) {
+  function historyItem(st, s, tag) {
     var r = rec(st.id, s.id), t = r.tries, f = choiceOf(s, t[0].c), l = choiceOf(s, t[t.length - 1].c), changed = t.length > 1 && f && l && f.id !== l.id;
     if (!f || !l) return '';
     var note = t.map(function (x) { return x.note; }).filter(Boolean).pop();
     return '<details class="hist"><summary>' + art(s.id, 'art-thumb') +
-      '<span class="hist-main"><span class="row-tags">' + chip(s.topic) + '<span class="when">' + fmtDate(t[t.length - 1].at) + '</span></span><strong>' + esc(s.title) + '</strong>' +
+      '<span class="hist-main"><span class="row-tags">' + chip(s.topic) + (tag || '') + '<span class="when">' + fmtDate(t[t.length - 1].at) + '</span></span><strong>' + esc(s.title) + '</strong>' +
         '<span class="hist-choice">' + (changed ? '<b>First chose:</b> ' + esc(f.label) + ' <b>Then:</b> ' + esc(l.label) : '<b>Chose:</b> ' + esc(l.label)) + '</span></span>' +
       '<span class="hist-tone">' + tone(l.kind) + '<span class="chev" aria-hidden="true"></span></span></summary>' +
       '<div class="hist-body">' +
@@ -761,30 +834,37 @@
         : e && !mine ? '<span class="status assigned">' + who(s.id) + '</span>'
         : pairBtns('assign', ' data-by="' + ctx.role + '" data-sid="' + sid + '" data-id="' + s.id + '"', mine ? (e.opt ? 'optional' : 'assigned') : '');
     });
+    var whoChip = function (id) { var t = who(id); return t ? '<span class="status assigned">' + t + '</span>' : ''; };
+    var queued = w.concat(opts), startedN = queued.filter(function (id) { return isStarted(sid, id); }).length;
+    var lastTry = done.length ? rec(sid, done[0].id).tries : null;
+    var waitRows = queued.map(function (id) {
+      var s = D.scenario(id);
+      return '<li>' + art(id, 'art-tiny') + '<span class="arow-main"><strong>' + esc(s.title) + '</strong><span>' + esc(D.topic(s.topic).name) + '</span></span>' +
+        '<span class="wl-tags">' + whoChip(id) + progressChip(sid, id) + '</span></li>';
+    }).join('');
     return '<div class="page">' +
       '<div class="ptop">' + ctx.top + '</div>' +
       '<section class="profile">' + avatar(st, 'xxl') +
         '<div class="profile-main"><p class="eyebrow">Student profile</p><h1>' + esc(st.name) + '</h1>' +
           '<p class="profile-meta">' + esc(st.grade) + ' · Practicing since ' + new Date(st.joined).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) + ' · ' + lastPracticed(sid) + ' · ' + credits(sid) + ' Courage Credits</p>' +
-          '<p class="profile-note">This is ' + fn + '’s own profile: the same name and character ' + fn + ' sees when practicing. ' + fn + ' sees only the practices assigned or offered here.</p></div></section>' +
+          '<p class="profile-note">' + fn + ' sees only the practices assigned or offered here, with the same name and character.</p>' +
+          '<div class="profile-actions"><button type="button" class="btn primary" data-act="jump-assign">' + ICON.plus + ' Assign practice to ' + fn + '</button></div></div></section>' +
       '<section class="stats">' +
         '<div class="stat lead"><strong>' + done.length + '<small>/' + total + '</small></strong><span>Practices completed</span><span class="donut" style="--p:' + pct + '" aria-hidden="true"></span></div>' +
-        '<div class="stat"><strong>' + w.length + '</strong><span>Assigned and waiting' + (opts.length ? ' · ' + opts.length + ' optional' : '') + '</span></div>' +
+        '<div class="stat"><strong>' + w.length + '</strong><span>Assigned and waiting' + (startedN ? ' · ' + startedN + ' started' : '') + (opts.length ? ' · ' + opts.length + ' optional' : '') + '</span></div>' +
         '<div class="stat ring"><strong>' + topicsTouched + '<small>/' + D.topics.length + '</small></strong><span>Topics practiced</span><span class="donut soft" style="--p:' + Math.round(topicsTouched / D.topics.length * 100) + '" aria-hidden="true"></span></div>' +
         '<div class="stat"><strong>' + second + '</strong><span>Went back to try a different choice</span></div>' +
       '</section>' +
-      '<div class="pcols">' +
-        '<section class="panel"><h2>How ' + fn + ' is choosing</h2>' + snap + '</section>' +
-        '<section class="panel"><h2>Progress by topic</h2><ul class="tlist">' + byTopic + '</ul></section>' +
-      '</div>' +
-      '<section class="panel"><div class="block-head"><h2>Completed practices</h2><p>' + (done.length ? 'Open one to see the choice, what ' + fn + ' read, what ' + fn + ' wrote, and a question to talk about.' : 'Nothing completed yet.') + '</p></div>' +
-        (done.length ? '<div class="hists">' + done.map(function (s) { return historyItem(st, s); }).join('') + '</div>' : '<p class="empty">When ' + fn + ' finishes a practice, it appears here with the choice they made.</p>') + '</section>' +
-      (w.length + opts.length ? '<section class="panel"><div class="block-head"><h2>Assigned and waiting</h2><p>' + fn + ' sees assigned practices first in “Up next,” then the optional ones.</p></div><ul class="waitlist">' + w.concat(opts).map(function (id) {
-        var s = D.scenario(id);
-        return '<li>' + art(id, 'art-tiny') + '<span class="arow-main"><strong>' + esc(s.title) + '</strong><span>' + esc(D.topic(s.topic).name) + ' · not finished</span></span><span class="status assigned">' + who(id) + '</span></li>';
-      }).join('') + '</ul></section>' : '') +
-      '<section class="panel"><details class="assign"' + (done.length + w.length === 0 ? ' open' : '') + '><summary><div><h2>Assign practice to ' + fn + '</h2><p class="hint"><strong>Assign</strong> puts a practice in ' + fn + '’s “Up next.” <strong>Optional</strong> makes it available without requiring it. Tap again to remove.</p></div><span class="chev" aria-hidden="true"></span></summary>' +
-        assign + '</details></section>' +
+      '<section class="panel"><div class="block-head"><h2>Assigned to ' + fn + '</h2><p>' + (queued.length ? 'Who assigned each practice, and whether ' + fn + ' has started it. ' + fn + ' sees the assigned ones first, then the optional ones.' : 'Nothing is waiting right now.') + '</p></div>' +
+        (queued.length ? '<ul class="waitlist">' + waitRows + '</ul>' : '<p class="empty">' + (done.length ? fn + ' has finished everything assigned. ' : '') + 'Use “Assign practice to ' + fn + '” to add a practice.</p>') + '</section>' +
+      fold('done', 'Completed practices',
+        done.length ? '<strong>' + plural(done.length, 'practice') + '</strong> finished · last one ' + fmtDate(lastTry[lastTry.length - 1].at).toLowerCase() + '. Open to see each choice, what ' + fn + ' read, and what ' + fn + ' wrote.' : 'Nothing completed yet.',
+        done.length ? '<div class="hists">' + done.map(function (s) { return historyItem(st, s, whoChip(s.id)); }).join('') + '</div>' : '<p class="empty">When ' + fn + ' finishes a practice, it appears here with the choice they made.</p>') +
+      fold('choosing', 'How ' + fn + ' is choosing',
+        done.length ? 'First picks: <strong>' + counts.strong + '</strong> “' + D.kind.strong.tag + '” · <strong>' + counts.mixed + '</strong> “' + D.kind.mixed.tag + '” · <strong>' + counts.risky + '</strong> “' + D.kind.risky.tag + '.” Open for what’s worth talking about.' : 'Shows up after ' + fn + ' finishes a practice.',
+        snap) +
+      fold('topics', 'Progress by topic', '<strong>' + topicsTouched + ' of ' + D.topics.length + '</strong> topics practiced so far.', '<ul class="tlist">' + byTopic + '</ul>') +
+      fold('assign', 'Assign practice to ' + fn, '<strong>Assign</strong> puts a practice in ' + fn + '’s “Up next.” <strong>Optional</strong> makes it available without requiring it. Tap again to remove.', assign, done.length + queued.length === 0) +
     '</div>';
   }
 
@@ -793,7 +873,7 @@
     var sts = groupStudents(g), ids = g.assigned.filter(D.scenario), total = sts.length * ids.length, done = 0, notStarted = 0;
     sts.forEach(function (st) {
       var d = ids.filter(function (id) { return isDone(st.id, id); }).length;
-      done += d; if (ids.length && !d) notStarted++;
+      done += d; if (ids.length && !d && !ids.some(function (id) { return isStarted(st.id, id); })) notStarted++;
     });
     return { students: sts, ids: ids, total: total, done: done, pct: total ? Math.round(done / total * 100) : 0, notStarted: notStarted };
   }
@@ -841,36 +921,48 @@
     var k = gStats(g), sts = k.students;
     var others = state.students.filter(function (s) { return g.students.indexOf(s.id) < 0; });
     var roster = sts.map(function (st) {
-      var d = k.ids.filter(function (id) { return isDone(st.id, id); }).length;
+      var d = k.ids.filter(function (id) { return isDone(st.id, id); }).length, stN = k.ids.filter(function (id) { return isStarted(st.id, id); }).length;
       return '<li class="rrow">' + avatar(st) +
         '<a class="rrow-main" href="#/teacher/s/' + st.id + '"><strong>' + esc(st.name) + '</strong><span>' + esc(st.grade) + ' · ' + lastPracticed(st.id) + '</span></a>' +
-        '<span class="rrow-prog">' + (k.ids.length ? '<span class="meter"><i style="width:' + (d / k.ids.length * 100) + '%"></i></span><span>' + d + ' of ' + k.ids.length + ' assigned done</span>' : '<span>' + plural(doneList(st.id).length, 'practice') + ' done</span>') + '</span>' +
+        '<span class="rrow-prog">' + (k.ids.length ? '<span class="meter"><i style="width:' + (d / k.ids.length * 100) + '%"></i></span><span>' + d + ' of ' + k.ids.length + ' assigned done' + (stN ? ' · ' + stN + ' started' : d ? '' : ' · not started') + '</span>' : '<span>' + plural(doneList(st.id).length, 'practice') + ' done</span>') + '</span>' +
         '<span class="rrow-actions"><a class="btn small ghost" href="#/teacher/s/' + st.id + '">View progress</a>' +
         '<button type="button" class="btn small quiet" data-act="roster-remove" data-g="' + g.id + '" data-sid="' + st.id + '" aria-label="Remove ' + esc(st.name) + ' from ' + esc(g.name) + '">Remove</button></span></li>';
     }).join('');
     var assign = assignList(function (s) {
       return pairBtns('gassign', ' data-g="' + g.id + '" data-id="' + s.id + '"', g.assigned.indexOf(s.id) >= 0 ? 'assigned' : g.optional.indexOf(s.id) >= 0 ? 'optional' : '');
     });
+    var cls = g.kind === 'Class' ? 'class' : 'group', optIds = g.optional.filter(D.scenario);
+    var arow = function (id, opt) {
+      var sc = D.scenario(id), dn = 0, sn = 0;
+      sts.forEach(function (st) { if (isDone(st.id, id)) dn++; else if (isStarted(st.id, id)) sn++; });
+      return '<li>' + art(id, 'art-tiny') + '<span class="arow-main"><strong>' + esc(sc.title) + '</strong><span>' + esc(D.topic(sc.topic).name) + ' · <a href="#/preview/' + id + '">Preview</a></span></span>' +
+        '<span class="wl-tags"><span class="status ' + (opt ? 'todo' : 'assigned') + '">' + (opt ? 'Optional for everyone' : ICON.check + ' Assigned to everyone') + '</span>' +
+          (sts.length ? '<span class="tally"><b>' + dn + '</b> done · <b>' + sn + '</b> started · <b>' + (sts.length - dn - sn) + '</b> not started</span>' : '') + '</span>' +
+        '<button type="button" class="btn small quiet" data-act="gremove" data-g="' + g.id + '" data-id="' + id + '"' + (opt ? ' data-opt="1"' : '') + ' aria-label="Remove ' + esc(sc.title) + ' from ' + esc(g.name) + '">Remove</button></li>';
+    };
+    var assignedRows = k.ids.map(function (id) { return arow(id, false); }).concat(optIds.map(function (id) { return arow(id, true); })).join('');
     return '<div class="page">' +
       '<div class="ptop">' + backBtn('#/teacher') + '</div>' +
       '<section class="profile"><div class="profile-main"><p class="eyebrow">' + esc(g.kind) + '</p><h1>' + esc(g.name) + '</h1>' +
-        '<p class="profile-meta">' + plural(sts.length, 'student') + ' · ' + plural(k.ids.length, 'practice') + ' assigned to everyone' + (g.optional.length ? ' · ' + g.optional.length + ' optional' : '') + '</p></div>' +
+        '<p class="profile-meta">' + plural(sts.length, 'student') + ' · ' + plural(k.ids.length, 'practice') + ' assigned to everyone' + (optIds.length ? ' · ' + optIds.length + ' optional' : '') + '</p>' +
+        '<div class="profile-actions"><button type="button" class="btn primary" data-act="jump-assign">' + ICON.plus + ' Assign practice to everyone</button></div></div>' +
         '<div class="stack big">' + sts.slice(0, 7).map(function (s) { return avatar(s, 'lg'); }).join('') + '</div></section>' +
       '<section class="stats three">' +
         '<div class="stat lead"><strong>' + k.done + '<small>/' + k.total + '</small></strong><span>Assigned practices completed</span><span class="donut" style="--p:' + k.pct + '" aria-hidden="true"></span></div>' +
-        '<div class="stat"><strong>' + k.ids.length + '</strong><span>Scenarios assigned to this ' + (g.kind === 'Class' ? 'class' : 'group') + '</span></div>' +
+        '<div class="stat"><strong>' + k.ids.length + '</strong><span>Scenarios assigned to this ' + cls + '</span></div>' +
         '<div class="stat"><strong>' + k.notStarted + '</strong><span>' + (k.notStarted === 1 ? 'Student hasn’t' : 'Students haven’t') + ' started the assigned practice</span></div>' +
       '</section>' +
+      '<section class="panel"><div class="block-head"><h2>Assigned to this ' + cls + '</h2><p>' + (assignedRows ? 'Every student in ' + esc(g.name) + ' has these. Each row shows how far the ' + cls + ' has got.' : 'Nothing is assigned to this ' + cls + ' yet.') + '</p></div>' +
+        (assignedRows ? '<ul class="waitlist">' + assignedRows + '</ul>' : '<p class="empty">Use “Assign practice to everyone” to pick the first scenario.</p>') + '</section>' +
+      fold('assign', 'Assign practice to everyone', '<strong>Assign</strong> puts a practice in “Up next” for each student in ' + esc(g.name) + '. <strong>Optional</strong> makes it available without requiring it. Tap again to remove.', assign, !assignedRows) +
       '<section class="panel"><div class="block-head"><h2>Students</h2><p>Open a student to see their own profile, choices, and reflections.</p></div>' +
         (sts.length ? '<ul class="roster">' + roster + '</ul>' : '<p class="empty">No students yet. Add one below.</p>') +
         '<form class="roster-add" id="rosterForm" data-g="' + g.id + '"><h3>Add a student</h3><div class="add-row">' +
           '<label class="field"><span>Existing profile</span><select name="existing"><option value="">Choose a student…</option>' + others.map(function (s) { return '<option value="' + s.id + '">' + esc(s.name) + ' · ' + esc(s.grade) + '</option>'; }).join('') + '</select></label>' +
           '<label class="field"><span>Or a new student’s name</span><input name="name" maxlength="40" autocomplete="off" placeholder="e.g. Sam Rivera"></label>' +
           '<button class="btn primary" type="submit">Add student</button></div></form></section>' +
-      '<section class="panel"><div class="block-head"><h2>How the ' + (g.kind === 'Class' ? 'class' : 'group') + ' is choosing</h2><p>' + (k.ids.length ? 'Bars count each student’s <em>first</em> pick. Open a student to see who chose what.' : 'Assign a scenario below and results will show up here.') + '</p></div>' +
-        (k.ids.length ? '<div class="insights">' + k.ids.map(function (id) { return insight(D.scenario(id), sts); }).join('') + '</div>' : '<p class="empty">Nothing is assigned to this ' + (g.kind === 'Class' ? 'class' : 'group') + ' yet.</p>') + '</section>' +
-      '<section class="panel"><details class="assign"' + (k.ids.length ? '' : ' open') + '><summary><div><h2>Assign practice to everyone</h2><p class="hint"><strong>Assign</strong> puts a practice in “Up next” for each student in ' + esc(g.name) + '. <strong>Optional</strong> makes it available without requiring it. Tap again to remove.</p></div><span class="chev" aria-hidden="true"></span></summary>' +
-        assign + '</details></section>' +
+      '<section class="panel"><div class="block-head"><h2>How the ' + cls + ' is choosing</h2><p>' + (k.ids.length ? 'Bars count each student’s <em>first</em> pick. Open a student to see who chose what.' : 'Assign a scenario and results will show up here.') + '</p></div>' +
+        (k.ids.length ? '<div class="insights">' + k.ids.map(function (id) { return insight(D.scenario(id), sts); }).join('') + '</div>' : '<p class="empty">Nothing is assigned to this ' + cls + ' yet.</p>') + '</section>' +
       '<p class="page-end"><button type="button" class="linklike danger" data-act="gdelete" data-g="' + g.id + '">Delete ' + esc(g.name) + '</button></p>' +
     '</div>';
   }
@@ -888,11 +980,24 @@
   /* ───────── events ───────── */
   function keepPlace(el, selector) {
     var before = el.getBoundingClientRect().top;
+    folds.assign = true;
     render(true);
-    var d = document.querySelector('details.assign'); if (d) d.open = true;
     var again = document.querySelector(selector);
     if (again) { window.scrollBy(0, again.getBoundingClientRect().top - before); again.focus({ preventScroll: true }); }
   }
+  /* assign a scenario to a whole class or group, make it optional, or take it away again */
+  function groupToggle(g, scid, opt) {
+    var list = opt ? g.optional : g.assigned, other = opt ? g.assigned : g.optional, at = list.indexOf(scid);
+    g.students.forEach(function (x) { dropGroupAssign(x, g.id, scid); });
+    if (other.indexOf(scid) >= 0) other.splice(other.indexOf(scid), 1);
+    if (at >= 0) list.splice(at, 1);
+    else { list.push(scid); g.students.forEach(function (x) { addAssign(state, x, scid, 'teacher', g.id, opt); }); }
+    save();
+  }
+  document.addEventListener('toggle', function (e) {
+    var d = e.target;
+    if (d && d.hasAttribute && d.hasAttribute('data-fold')) folds[d.getAttribute('data-fold')] = d.open;
+  }, true);
   function choiceLines(s) { return s.choices.map(function (c, i) { return 'Choice ' + 'ABC'[i] + '. ' + c.label + '.'; }); }
   document.addEventListener('click', function (e) {
     var el = e.target.closest('[data-act]');
@@ -911,7 +1016,7 @@
         else if (key === 'choices') Voice.toggle(key, [s.ask].concat(choiceLines(s)));
         else if (!c) return;
         else if (key === 'outcome') Voice.toggle(key, ['You chose: ' + c.label + '.', K.heading, c.impact]);
-        else if (key === 'reflect') Voice.toggle(key, [K.nextLabel + '.', c.next, REFLECT_Q, play.mode === 'practice' ? 'Write at least ten words.' : '']);
+        else if (key === 'reflect') Voice.toggle(key, [K.nextLabel + '.', c.next, reflectQ(c), play.mode === 'practice' ? 'Write at least ten words.' : '']);
         else if (key === 'complete') {
           var w = wrapUp(s);
           Voice.toggle(key, ['Scenario complete.', w.title.join(' '), 'You chose: ' + c.label + '.', w.sum, c.close, w.amount + '. ' + w.why]
@@ -977,33 +1082,59 @@
       case 'gassign':
         var g = group(el.getAttribute('data-g')), scid = el.getAttribute('data-id'), gopt = el.hasAttribute('data-opt');
         if (!g) return;
-        var list = gopt ? g.optional : g.assigned, other = gopt ? g.assigned : g.optional, at = list.indexOf(scid);
-        g.students.forEach(function (x) { dropGroupAssign(x, g.id, scid); });
-        if (other.indexOf(scid) >= 0) other.splice(other.indexOf(scid), 1);
-        if (at >= 0) list.splice(at, 1);
-        else { list.push(scid); g.students.forEach(function (x) { addAssign(state, x, scid, 'teacher', g.id, gopt); }); }
-        save();
-        keepPlace(el, '[data-act="gassign"][data-id="' + scid + '"]' + (gopt ? '[data-opt]' : ':not([data-opt])'));
+        groupToggle(g, scid, gopt);
+        keepPlace(el, '.fold [data-act="gassign"][data-id="' + scid + '"]' + (gopt ? '[data-opt]' : ':not([data-opt])'));
+        break;
+      case 'gremove':
+        var xg = group(el.getAttribute('data-g')), xid = el.getAttribute('data-id'), xopt = el.hasAttribute('data-opt');
+        if (!xg || (xopt ? xg.optional : xg.assigned).indexOf(xid) < 0) return;
+        groupToggle(xg, xid, xopt);
+        render(true);
+        break;
+      case 'jump-assign':
+        folds.assign = true;
+        render(true);
+        var fa = document.getElementById('fold-assign');
+        if (fa) {
+          fa.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+          var fs = fa.querySelector('summary'); if (fs) fs.focus({ preventScroll: true });
+        }
         break;
       case 'roster-remove':
-        var rg = group(el.getAttribute('data-g')), rs = el.getAttribute('data-sid');
-        if (!rg) return;
-        rg.students = rg.students.filter(function (x) { return x !== rs; });
-        dropGroupAssign(rs, rg.id);
-        save(); render(true);
+        var rg = group(el.getAttribute('data-g')), rs = el.getAttribute('data-sid'), rst = student(rs);
+        if (!rg || !rst) return;
+        ask({
+          title: 'Remove ' + rst.name + ' from ' + rg.name + '?',
+          body: first(rst.name) + ' keeps their profile and everything they have completed. Practice assigned through ' + rg.name + ' that isn’t finished comes off their list.',
+          ok: 'Remove student',
+          then: function () {
+            rg.students = rg.students.filter(function (x) { return x !== rs; });
+            dropGroupAssign(rs, rg.id);
+            save(); render(true);
+          }
+        });
         break;
       case 'gdelete':
         var dg = group(el.getAttribute('data-g'));
-        if (dg && window.confirm('Delete “' + dg.name + '”? Students keep their profiles and completed practices. Practice assigned through this group that they haven’t started is removed.')) {
-          dg.students.forEach(function (x) { dropGroupAssign(x, dg.id); });
-          state.groups = state.groups.filter(function (x) { return x !== dg; });
-          save(); go('#/teacher');
-        }
+        if (!dg) return;
+        ask({
+          title: 'Delete ' + dg.name + '?',
+          body: 'Students keep their profiles and completed practices. Practice assigned through ' + dg.name + ' that isn’t finished comes off their lists. This can’t be undone.',
+          ok: 'Delete ' + (dg.kind === 'Class' ? 'class' : 'group'),
+          then: function () {
+            dg.students.forEach(function (x) { dropGroupAssign(x, dg.id); });
+            state.groups = state.groups.filter(function (x) { return x !== dg; });
+            save(); go('#/teacher');
+          }
+        });
         break;
       case 'reset':
-        if (window.confirm('Reset ChoiceLab to the sample family? This clears all profiles and progress saved in this browser.')) {
-          state = migrate(seed()); save(); play = null; sessionDone = []; go('#/');
-        }
+        ask({
+          title: 'Reset ChoiceLab to the sample data?',
+          body: 'This clears every profile, class and all progress saved in this browser.',
+          ok: 'Reset',
+          then: function () { state = migrate(seed()); save(); play = null; sessionDone = []; go('#/'); }
+        });
         break;
     }
   });
@@ -1019,7 +1150,7 @@
     }
     var f = t.form;
     if (f && f.id === 'profileForm' && draft) {
-      if (t.name === 'voice') { state.voice = t.value; save(); return; }
+      if (t.name === 'voice') { state.voice = t.value; save(); var vt = document.getElementById('voiceTip'); if (vt) vt.textContent = Voice.tip(); return; }
       readMaker(f);
       if (t.name !== 'name' && t.name !== 'grade') paintMaker();
     }

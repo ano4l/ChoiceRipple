@@ -46,25 +46,43 @@ Student  Pick a profile -> Up next. Each practice has five steps, and a
                                 (cause and effect), kept apart from...
            4 Reflect            why they chose it and what they might do
                                 next time, in at least 10 words
-           5 Complete           a message for that scenario and choice,
+           5 Complete           the last page: "Scenario complete (5/5)",
+                                a message for that choice, a picture of a
+                                helpful outcome with the student in it,
                                 20 Courage Credits, their own reflection,
-                                then the next scenario or back to practice
+                                then "Continue to next scenario" or
+                                "Return to assignments"
          Read-aloud is on every step.
+         One practice at a time: once a student has made a choice, that
+         practice shows "Started" and the others are locked until its
+         reflection is finished. Coming back later picks it up at step 3.
+         Every practice in the student's list shows who it is from and
+         whether it is Not started, Started or Done.
          "Edit my character" lets a student make their character look like
          them (skin tone, hair or head covering, colours, top, glasses).
          That character is drawn as "you" in the scenes, in the picture for
          each choice, and in what could happen.
          Courage Credits: 20 for each finished practice, the same for every
          choice. They celebrate practice, not perfect answers.
-Parent   Your students -> Open profile -> completed practices, the choice
-         made, what the student read and what they wrote, a question to
-         talk about, progress by topic, and assigning practice.
-Teacher  Your classes and groups -> open one -> roster, how the class is
-         choosing on each assigned scenario (with a class discussion
-         question), and assigning practice to everyone at once. Open a
-         student for the same profile and progress page a parent sees.
-         Groups can be a class, a small group, or an ISS / detention group.
-Assign   Pick a section (Everyday Life or Faith and Spiritual Growth), then
+Parent   Your students -> Open profile. The profile is short: the numbers,
+         then "Assigned to <name>" (who assigned each practice and whether
+         it is Not started or Started). Four sections open when you want
+         the detail: Completed practices (the choice made, what the student
+         read and wrote, a question to talk about), How <name> is choosing,
+         Progress by topic, and Assign practice.
+Teacher  Your classes and groups -> open one. "Assign practice to
+         everyone" is the button at the top. Under the numbers,
+         "Assigned to this class" lists every assigned and optional
+         scenario with how many students are done, started and not
+         started, and a Remove button. Then the roster, and how the class
+         is choosing on each assigned scenario (with a class discussion
+         question). Open a student for the same profile a parent sees.
+         Groups can be a class, a small group, or an ISS / detention
+         group; that label and the group's name appear only in the
+         teacher view, never to students or parents.
+         Removing a student from a group and deleting a group both ask for
+         confirmation first.
+Assign   Pick the type of practice (Everyday Life or Faith-based), then
          "Assign" a practice (it goes into the student's Up next) or mark
          it "Optional" (available, not required). Students see who each
          practice is from.
