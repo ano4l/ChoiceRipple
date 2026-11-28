@@ -1,27 +1,33 @@
-/* Choice Ripple — topics and scenarios.
-   Every scenario has its own prompt, its own three responses, and a reflection
-   written for each specific response (impact → next step → closing line).
+/* Choice Ripple — topics and the Everyday Life scenarios (the Faith and Spiritual Growth
+   scenarios are in data-faith.js).
+   Every scenario has its own prompt, its own three responses, and for each response:
+   impact (what could happen) → next (a supportive next step) → close (the line to keep).
+   act: which picture shows the choice · to: who shares that picture (see js/art.js)
    kind: 'strong' = helps · 'mixed' = partly helps · 'risky' = likely makes it harder */
 (function (global) {
   'use strict';
 
+  /* Two sections, twelve topics, four scenarios in each topic. */
+  var GROUPS = [
+    { id: 'everyday', name: 'Everyday Life', blurb: 'School, friends, feelings and staying safe.' },
+    { id: 'faith', name: 'Faith and Spiritual Growth', blurb: 'Faith-based practice that families, churches and schools can choose to assign.' }
+  ];
   var TOPICS = [
-    { id: 'conflict', name: 'Conflict & anger', bg: '#fbe3dc', ink: '#9c3f2b' },
-    { id: 'friendship', name: 'Friendship', bg: '#fdeccc', ink: '#855600' },
-    { id: 'pressure', name: 'Peer pressure', bg: '#e8e3f6', ink: '#54428f' },
-    { id: 'speaking', name: 'Speaking up', bg: '#dcecf7', ink: '#225682' },
-    { id: 'empathy', name: 'Empathy', bg: '#fbe1e8', ink: '#963357' },
-    { id: 'boundaries', name: 'Boundaries & respect', bg: '#e0efe2', ink: '#2c6638' },
-    { id: 'digital', name: 'Digital choices', bg: '#d9eef0', ink: '#1c5f6b' },
-    { id: 'bullying', name: 'Bullying & exclusion', bg: '#f3e4d4', ink: '#7a4719' },
-    { id: 'honesty', name: 'Honesty & schoolwork', bg: '#eaedd3', ink: '#56601c' },
-    { id: 'teamwork', name: 'Teamwork', bg: '#dfe7fb', ink: '#344d98' },
-    { id: 'belonging', name: 'Bias & belonging', bg: '#f4e0f1', ink: '#7a3774' },
-    { id: 'safety', name: 'Safety & getting help', bg: '#fde7d0', ink: '#94470f' }
+    { id: 'bullying', group: 'everyday', name: 'Bullying and exclusion', short: 'Bullying & exclusion', bg: '#f3e4d4', ink: '#7a4719' },
+    { id: 'conflict', group: 'everyday', name: 'Conflict and anger', short: 'Conflict & anger', bg: '#fbe3dc', ink: '#9c3f2b' },
+    { id: 'friendship', group: 'everyday', name: 'Friendship and peer pressure', short: 'Friendship & pressure', bg: '#fdeccc', ink: '#855600' },
+    { id: 'digital', group: 'everyday', name: 'Digital choices and social media', short: 'Digital choices', bg: '#d9eef0', ink: '#1c5f6b' },
+    { id: 'honesty', group: 'everyday', name: 'Honesty and integrity', short: 'Honesty & integrity', bg: '#eaedd3', ink: '#56601c' },
+    { id: 'emotions', group: 'everyday', name: 'Emotions and self-control', short: 'Emotions & self-control', bg: '#fbe1e8', ink: '#963357' },
+    { id: 'communication', group: 'everyday', name: 'Communication and respect', short: 'Communication & respect', bg: '#dcecf7', ink: '#225682' },
+    { id: 'safety', group: 'everyday', name: 'Safety and asking for help', short: 'Safety & asking for help', bg: '#fde7d0', ink: '#94470f' },
+    { id: 'trust', group: 'faith', name: 'Fear and trusting God', short: 'Fear & trusting God', bg: '#dfe7fb', ink: '#344d98' },
+    { id: 'prayer', group: 'faith', name: 'Prayer and patience', short: 'Prayer & patience', bg: '#e8e3f6', ink: '#54428f' },
+    { id: 'forgiveness', group: 'faith', name: 'Forgiveness and grace', short: 'Forgiveness & grace', bg: '#e0efe2', ink: '#2c6638' },
+    { id: 'identity', group: 'faith', name: 'Identity, purpose, and doing what is right', short: 'Identity & purpose', bg: '#f4e0f1', ink: '#7a3774' }
   ];
 
   var SCENARIOS = [
-    /* ───────── Conflict & anger ───────── */
     {
       id: 'heated', topic: 'conflict', title: 'When words get heated', place: 'Hallway · between classes',
       text: 'Dev bumps your shoulder at the lockers, laughs, and says, “You’re so dramatic.” A few students turn to watch. Your face gets hot.',
@@ -65,7 +71,6 @@
       ]
     },
 
-    /* ───────── Friendship ───────── */
     {
       id: 'quiet', topic: 'friendship', title: 'Gone quiet', place: 'Cafeteria · the day after',
       text: 'Yesterday you sat with a different group at lunch. Today Aaliyah won’t answer your messages. When you look over, she crosses her arms and looks away.',
@@ -109,9 +114,8 @@
       ]
     },
 
-    /* ───────── Peer pressure ───────── */
     {
-      id: 'vape', topic: 'pressure', title: 'Just one time', place: 'Behind the gym · after school',
+      id: 'vape', topic: 'friendship', title: 'Just one time', place: 'Behind the gym · after school',
       text: 'An older student named Brooks holds out a vape. “It’s only one time,” he says. “Everybody does it.” Your stomach tightens. You don’t want it.',
       ask: 'Brooks is waiting. What do you do?',
       alt: 'An older student in a beanie smirks and holds out a vape; a younger student leans back uneasily with a hand raised to refuse.',
@@ -132,7 +136,7 @@
       ]
     },
     {
-      id: 'dare', topic: 'pressure', title: 'The dare', place: 'School gate · lunch',
+      id: 'dare', topic: 'friendship', title: 'The dare', place: 'School gate · lunch',
       text: 'Milo and Jaylen wave you over to the open gate. “We’re sneaking out to the corner store. Don’t be boring!” Leaving campus is against the rules, and no adult would know where you are.',
       ask: 'They’re waving you over. What do you do?',
       alt: 'Two grinning students beckon toward an open school gate while a third hugs her arms, nervous and unsure.',
@@ -153,9 +157,8 @@
       ]
     },
 
-    /* ───────── Speaking up ───────── */
     {
-      id: 'directions', topic: 'speaking', title: 'Lost on the directions', place: 'Science class · start of the lab',
+      id: 'directions', topic: 'communication', title: 'Lost on the directions', place: 'Science class · start of the lab',
       text: 'Your teacher explains the lab and says, “Go ahead and start.” Everyone around you begins writing. You stare at the worksheet. You have no idea what the first step is.',
       ask: 'Everyone else is working. What do you do?',
       alt: 'A confused student stares at a worksheet with question marks overhead while a classmate writes steadily beside him.',
@@ -176,7 +179,7 @@
       ]
     },
     {
-      id: 'talkedover', topic: 'speaking', title: 'Talked over', place: 'Classroom · group project',
+      id: 'talkedover', topic: 'communication', title: 'Talked over', place: 'Classroom · group project',
       text: 'Your group is planning a poster. You start to share an idea, and Priya talks right over you. You try again, and Marcus cuts in. Neither of them notices.',
       ask: 'You still have your idea. What do you do?',
       alt: 'Two students talk excitedly over the head of a third, who sits between them looking annoyed and unheard.',
@@ -197,9 +200,8 @@
       ]
     },
 
-    /* ───────── Empathy ───────── */
     {
-      id: 'wronganswer', topic: 'empathy', title: 'The wrong answer', place: 'Math class',
+      id: 'wronganswer', topic: 'emotions', title: 'The wrong answer', place: 'Math class',
       text: 'Noor answers a question out loud, and it’s wrong. A few kids laugh. One points. Noor’s cheeks go red and she stares at her desk.',
       ask: 'Noor looks like she wants to disappear. What do you do?',
       alt: 'A girl in a hijab blushes and looks down, hugging her arms, while two classmates laugh and point behind her.',
@@ -220,7 +222,7 @@
       ]
     },
     {
-      id: 'badgrade', topic: 'empathy', title: 'A rough grade', place: 'Classroom · tests handed back',
+      id: 'badgrade', topic: 'emotions', title: 'A rough grade', place: 'Classroom · tests handed back',
       text: 'Tests come back. You got an A. Your lab partner Jun looks at his paper, drops his head into his hand, and goes completely silent.',
       ask: 'Jun hasn’t moved. What do you do?',
       alt: 'A boy slumps with his hand in his hair over a test covered in red marks while his partner watches with concern.',
@@ -241,9 +243,8 @@
       ]
     },
 
-    /* ───────── Boundaries & respect ───────── */
     {
-      id: 'phonegrab', topic: 'boundaries', title: 'Hands off my phone', place: 'Hallway · before class',
+      id: 'phonegrab', topic: 'communication', title: 'Hands off my phone', place: 'Hallway · before class',
       text: 'You’re texting when Sadie reaches for your phone. “Let me see who you’re talking to!” she says, grinning. This is the third time this week, and you’ve already asked her to stop.',
       ask: 'Sadie is grabbing for it again. What do you do?',
       alt: 'A grinning girl reaches for a phone while her friend holds it out of reach, annoyed, with a hand up to block her.',
@@ -264,7 +265,7 @@
       ]
     },
     {
-      id: 'nickname', topic: 'boundaries', title: 'Use my name', place: 'Schoolyard · recess',
+      id: 'nickname', topic: 'communication', title: 'Use my name', place: 'Schoolyard · recess',
       text: 'Cole keeps calling you a nickname you hate. You’ve asked him to stop twice. Today he does it again, shrugs, and says, “Relax, I’m just playing.”',
       ask: 'Cole is smirking. What do you do?',
       alt: 'A smirking boy shrugs while another student faces him with a firm look and a raised hand that says stop.',
@@ -285,7 +286,6 @@
       ]
     },
 
-    /* ───────── Digital choices ───────── */
     {
       id: 'picture', topic: 'digital', title: 'A picture starts spreading', place: 'Class group chat · after school',
       text: 'Someone drops an embarrassing photo of Kiara into the class group chat. She clearly didn’t want it shared. Laughing emojis pile up, and two people ask you to forward it.',
@@ -330,7 +330,6 @@
       ]
     },
 
-    /* ───────── Bullying & exclusion ───────── */
     {
       id: 'joke', topic: 'bullying', title: 'The joke at the table', place: 'Cafeteria · lunch',
       text: 'At lunch, Carter starts copying the way Ben talks. The table cracks up. “Nobody wants you here,” Carter adds. Ben stares at his tray and stops eating.',
@@ -375,7 +374,6 @@
       ]
     },
 
-    /* ───────── Honesty & schoolwork ───────── */
     {
       id: 'answers', topic: 'honesty', title: 'Send me your answers', place: 'Your desk · the night before it’s due',
       text: 'You just finished the math homework when DeShawn texts: “Send me your answers?? Nobody will know.” He’s your friend, and he sounds stressed.',
@@ -419,9 +417,8 @@
       ]
     },
 
-    /* ───────── Teamwork ───────── */
     {
-      id: 'takeover', topic: 'teamwork', title: 'One person runs the show', place: 'Library · group project',
+      id: 'takeover', topic: 'conflict', title: 'One person runs the show', place: 'Library · group project',
       text: 'Your group has a presentation due Friday. Zoe scoops up all the papers and says, “I’ll just do it all. You two are too slow.” Your other teammate looks at the floor.',
       ask: 'Zoe is already walking off with the work. What do you do?',
       alt: 'A girl hugs a stack of papers with a smug, eyes-closed look; one teammate folds his arms, annoyed, and another looks down, deflated.',
@@ -442,7 +439,7 @@
       ]
     },
     {
-      id: 'missingpart', topic: 'teamwork', title: 'The missing part', place: 'Library · the day before presenting',
+      id: 'missingpart', topic: 'conflict', title: 'The missing part', place: 'Library · the day before presenting',
       text: 'You present tomorrow, and Andre’s slides are still blank. He’s clutching his head at his laptop. Lena crosses her arms and says, “Seriously? You had all week.”',
       ask: 'Andre looks overwhelmed and Lena is fuming. What do you do?',
       alt: 'A boy clutches his head, overwhelmed, in front of a laptop with empty slides while a teammate glares with her arms crossed.',
@@ -463,9 +460,8 @@
       ]
     },
 
-    /* ───────── Bias & belonging ───────── */
     {
-      id: 'name', topic: 'belonging', title: 'Say my name', place: 'Classroom · first week',
+      id: 'name', topic: 'bullying', title: 'Say my name', place: 'Classroom · first week',
       text: 'During introductions, a classmate squints at Oluwaseun’s name tag and laughs. “That’s way too hard. I’ll just call you Sam.” Oluwaseun’s smile fades and he looks down.',
       ask: 'The classmate turns to you, grinning. What do you do?',
       alt: 'A cheerful boy shrugs as he says “Sam?” while the classmate he renamed looks down, his smile gone.',
@@ -487,7 +483,7 @@
       ]
     },
     {
-      id: 'food', topic: 'belonging', title: 'Lunch from home', place: 'Cafeteria · lunch',
+      id: 'food', topic: 'bullying', title: 'Lunch from home', place: 'Cafeteria · lunch',
       text: 'Linh opens her lunch from home. The kid across from her pinches his nose. “Ew, what is that? It smells weird.” Linh’s face turns red and she starts closing the lid.',
       ask: 'Linh is about to put her lunch away. What do you do?',
       alt: 'A boy pinches his nose with a disgusted face while a girl blushes and looks down, closing her lunchbox.',
@@ -508,7 +504,6 @@
       ]
     },
 
-    /* ───────── Safety & getting help ───────── */
     {
       id: 'secret', topic: 'safety', title: 'A secret that’s too big', place: 'Bench outside school · after class',
       note: 'This practice is about a friend who is feeling hopeless. You can skip it, and you can always talk with a trusted adult instead.',
@@ -552,8 +547,240 @@
           next: 'Follow the school’s emergency directions right away, and stay with your class so adults know you’re safe.',
           close: 'Quick thinking and a clear report can protect a whole building.' }
       ]
+    },
+
+    /* ───────── added with the 48-scenario library; their pictures are staged from `scene` ───────── */
+    /* ───────── Digital choices and social media ───────── */
+    {
+      id: 'pileon', topic: 'digital', title: 'The comment pile-on', place: 'Your room · after dinner',
+      text: 'Ines posted a video of herself singing. The comments are turning mean. “My ears hurt,” one says. Your friend Tyrell tags you: “Add something funny!” Your thumb hovers over the keyboard.',
+      ask: 'Tyrell is waiting for your comment. What do you do?',
+      alt: 'In your bedroom at night, you hold your phone and look uneasy while a grinning boy types on his and message cards pile up.',
+      talk: 'Why is it easier to be mean online than face to face? What would you want a friend to do if the comments were about you?',
+      adult: 'mom',
+      scene: { bg: 'room', me: ['uneasy', 'phone', 'phone'], them: [['k3', 'cheeky', 'phone', 'phone']], extra: 'chat' },
+      choices: [
+        { id: 'addjoke', kind: 'risky', act: 'joke', label: 'Add a joke about her singing so Tyrell laughs',
+          impact: 'One more joke feels small when twenty people already posted. But Ines reads every one, and yours comes from someone she knows. Comments can be screenshotted and saved long after the laugh is over.',
+          next: 'Before you post, ask yourself, “Would I say this to her face?” If not, skip it. Then send Ines one kind line instead.',
+          close: 'A pile-on is made of single comments. Yours counts.' },
+        { id: 'closeapp', kind: 'mixed', act: 'block', label: 'Close the app and stay out of it',
+          impact: 'Staying out means you add nothing to the pile, and that matters. But Ines still sees a wall of mean comments and nobody on her side. From where she sits, silence can look like agreeing.',
+          next: 'You don’t have to fight the whole thread. One private message, like “I liked your video,” can change her night.',
+          close: 'Not joining in is good. Showing up for someone is even better.' },
+        { id: 'kindline', kind: 'strong', act: 'phone', label: 'Post “It took guts to share this” and message Ines privately',
+          impact: 'A kind comment breaks the pattern. It shows Ines she isn’t alone, and it makes other people think twice before adding another joke. Often one person going first is all it takes.',
+          next: 'If the comments keep getting crueler, take a screenshot and show a parent or teacher. Ines can also report the thread.',
+          close: 'One kind comment can be louder than ten mean ones.' }
+      ]
+    },
+    {
+      id: 'gamechat', topic: 'digital', title: 'New friend in game chat', place: 'Home · after homework',
+      text: 'For weeks you’ve teamed up online with a player called PixelWolf. Today the messages change. “You’re so cool. What school do you go to? Send a pic. Don’t tell your parents, they won’t get it.” Your stomach flips.',
+      ask: 'PixelWolf is typing again. What do you do?',
+      alt: 'On the couch at home, you hold your phone and look uneasy as message cards pop up beside you.',
+      talk: 'How can you tell the difference between a friend online and a stranger who is being friendly? Who would you show a message like this?',
+      adult: 'dad',
+      note: 'This practice is about someone online asking for personal details. You can skip it, and you can always talk with a trusted adult instead.',
+      scene: { bg: 'home', me: ['uneasy', 'phone', 'phone'], them: [], extra: 'chat' },
+      choices: [
+        { id: 'sayno', kind: 'mixed', act: 'refuse', to: 'solo', label: 'Type “I don’t share that stuff” and keep playing together',
+          impact: 'Saying no to personal questions protects your information, and that is a smart instinct. But someone who asks you to hide things from your parents usually keeps pushing. Staying in the chat gives them more chances.',
+          next: 'Go one step further. Stop replying, block the player, and show the messages to a parent or another trusted adult.',
+          close: 'A good no is even stronger with an adult behind it.' },
+        { id: 'answer', kind: 'risky', act: 'giveIn', to: 'solo', label: 'Answer the questions, since you’ve played together for weeks',
+          impact: 'Playing together can feel like knowing someone, but you only know a username. Your school and your photo can’t be taken back once they are sent. “Don’t tell your parents” is a warning sign, not a friendship sign.',
+          next: 'It’s not too late, even if you already shared something. Stop replying and tell a parent or trusted adult today. Asking for help is the right move.',
+          close: 'Real friends never ask you to keep them a secret.' },
+        { id: 'showadult', kind: 'strong', act: 'tell', label: 'Stop replying, block and report the player, and show a parent the messages',
+          impact: 'Blocking ends the conversation, and reporting helps protect other kids in the game. Showing an adult the messages means you don’t have to figure out alone whether this person is safe.',
+          next: 'Keep the screenshots so your parent can see exactly what was said. Together you can check the privacy settings on your account.',
+          close: 'Showing an adult isn’t tattling. It’s how you stay safe.' }
+      ]
+    },
+
+    /* ───────── Honesty and integrity ───────── */
+    {
+      id: 'change', topic: 'honesty', title: 'Too much change', place: 'Bake sale table · lunch',
+      text: 'You buy a cookie at the bake sale with a five. Malia, the eighth grader running the cash box, is rushing. She hands you change for a twenty. Nobody notices. The extra bills feel warm in your hand.',
+      ask: 'The line is moving. What do you do?',
+      alt: 'At a bake sale table in the cafeteria, you look down at the cash in your hands while a busy older girl talks to the next person.',
+      talk: 'Is it still dishonest if the mistake was someone else’s? Who ends up paying for it?',
+      scene: { bg: 'cafe', me: ['thinking', 'hold', 'cash'], them: [['k6', 'talk', 'half']], extra: 'table' },
+      choices: [
+        { id: 'giveback', kind: 'strong', act: 'honest', label: 'Say, “You gave me too much,” and hand the extra back',
+          impact: 'Malia gets to fix the mistake before the cash box comes up short. It takes ten seconds, and she learns you’re someone she can trust with money, even when no one is checking.',
+          next: 'If she looks flustered, keep it light: “No worries, it’s busy.” Then enjoy your cookie.',
+          close: 'Honesty counts most when nobody would ever know.' },
+        { id: 'jar', kind: 'mixed', act: 'share', label: 'Slip the extra into the donation jar without saying anything',
+          impact: 'The money ends up back with the bake sale, so you didn’t keep what wasn’t yours. But the cash box still comes up short, and Malia may spend the afternoon wondering what she did wrong.',
+          next: 'Add the missing piece. Tell her, “You gave me too much change earlier. I put it in the jar.”',
+          close: 'Fixing it quietly is good. Fixing it out loud clears things up.' },
+        { id: 'pocket', kind: 'risky', act: 'hide', label: 'Pocket the money, since it was her mistake',
+          impact: 'It can feel like luck, not lying. But the cash box will be short at the end of the day, and Malia is the one who has to explain it. The money also tends to feel heavier than you expect.',
+          next: 'You can still turn around. “Hey, I think you gave me too much” works just as well five minutes later.',
+          close: 'Someone else’s mistake doesn’t make it yours to keep.' }
+      ]
+    },
+    {
+      id: 'credit', topic: 'honesty', title: 'Whose idea was it?', place: 'Classroom · project day',
+      text: 'Your teacher holds up your team’s poster. “This pop-up volcano is brilliant! Whose idea was it?” It was Pavel’s. But your teacher is smiling right at you, and Pavel hasn’t said a word. Your chest feels warm from the praise.',
+      ask: 'Your teacher is waiting for an answer. What do you say?',
+      alt: 'In a classroom, your teacher happily holds up a paper while you rub the back of your neck, thinking, and a quiet classmate looks on hopefully.',
+      talk: 'How does it feel when someone else gets praised for your idea? Why can sharing credit be hard in the moment?',
+      scene: { bg: 'classroom', me: ['thinking', 'neck'], them: [['teacher', 'happy', 'hold', 'paper'], ['k4', 'hopeful', 'down']] },
+      choices: [
+        { id: 'claim', kind: 'risky', act: 'lie', label: 'Say, “Thanks! I thought of it last night.”',
+          impact: 'The praise feels great for a minute. But Pavel knows the truth, and now he knows you’ll take what’s his when it’s easy. Trust between partners is hard to rebuild once it cracks.',
+          next: 'You can still fix it today. Tell your teacher, “Actually, the volcano was Pavel’s idea,” and tell Pavel you’re sorry.',
+          close: 'Praise you didn’t earn never feels as good as it looks.' },
+        { id: 'namehim', kind: 'strong', act: 'honest', label: 'Say, “That was Pavel’s idea. I did the lettering.”',
+          impact: 'Pavel gets seen for his work, and you still get credit for yours. Your teacher also learns something about you that matters more than a poster. You tell the truth when it costs you a little.',
+          next: 'Keep doing it in small moments. “That was her idea” is one of the easiest ways to build trust on a team.',
+          close: 'Giving credit away doesn’t shrink your share.' },
+        { id: 'weboth', kind: 'mixed', act: 'calm', label: 'Say, “We both worked on it,” and leave it there',
+          impact: 'It’s true that you both worked hard, and you didn’t claim the idea outright. But the question was whose idea it was. A fuzzy answer lets the praise land on you while Pavel’s part stays hidden.',
+          next: 'Make it specific: “We both built it, but the pop-up volcano was Pavel’s idea.”',
+          close: 'A half-truth can still leave someone out.' }
+      ]
+    },
+
+    /* ───────── Emotions and self-control ───────── */
+    {
+      id: 'ragequit', topic: 'emotions', title: 'One more loss', place: 'Living room · Saturday afternoon',
+      text: 'Your cousin Bashir zooms past you at the finish line. That’s five losses in a row. “Too slow!” he laughs. Your jaw is tight and your hands squeeze the controller. You want to throw it across the room.',
+      ask: 'Bashir is starting a rematch. What do you do?',
+      alt: 'In a living room, you grip a game controller, angry, while your cousin laughs and holds his own controller.',
+      talk: 'Where do you feel anger first in your body? What is one thing that helps it pass?',
+      adult: 'mom',
+      scene: { bg: 'home', me: ['angry', 'hold', 'controller'], them: [['k7', 'laugh', 'hold', 'controller']], extra: 'storm' },
+      choices: [
+        { id: 'leave', kind: 'mixed', act: 'walk', label: 'Quit the game and go to your room without a word',
+          impact: 'Walking away before you throw something is a real win. Nothing gets broken and nobody gets hurt. But Bashir has no idea what happened, and the anger comes with you to your room.',
+          next: 'Add one sentence on your way out: “I’m getting too mad. I need a break.” Then come back when your body feels calmer.',
+          close: 'Leaving is okay. Saying why makes it stronger.' },
+        { id: 'throwit', kind: 'risky', act: 'yell', label: 'Throw the controller and shout, “This game is rigged!”',
+          impact: 'The anger gets out fast, but it takes other things with it. Controllers break, Bashir stops wanting to play with you, and you may lose the game for a lot longer than one afternoon.',
+          next: 'Next time your jaw gets tight, treat it as a signal. Put the controller down and say, “I need a minute.”',
+          close: 'Losing a game is small. What you do next can make it big.' },
+        { id: 'pause', kind: 'strong', act: 'breathe', label: 'Set the controller down and say, “I’m getting mad. I need a minute.”',
+          impact: 'Naming the feeling out loud takes some of its power away. A few minutes and a drink of water let your body cool down, and Bashir sees you can lose without blowing up.',
+          next: 'When you come back, try a different game, or ask Bashir to show you how he takes that last turn.',
+          close: 'It’s okay to be mad. You’re still the one holding the controls.' }
+      ]
+    },
+    {
+      id: 'stagefright', topic: 'emotions', title: 'Your turn to present', place: 'Classroom · presentation day',
+      text: 'You’re next to present your book report. Your hands are shaking and your mouth is dry. Your heart pounds so loud you’re sure everyone can hear it. Your teacher smiles and says, “Whenever you’re ready.”',
+      ask: 'The room goes quiet. What do you do?',
+      alt: 'At the front of a classroom, you hold your papers and look nervous while your teacher smiles at you.',
+      talk: 'What does being nervous feel like in your body? What has helped you get through it before?',
+      scene: { bg: 'classroom', me: ['nervous', 'hold', 'papers'], them: [['teacher', 'smile', 'half']] },
+      choices: [
+        { id: 'begin', kind: 'strong', act: 'breathe', label: 'Take two slow breaths, plant your feet, and read your first line',
+          impact: 'Slow breaths tell your body it’s safe, and your heart starts to settle. Starting is usually the hardest part. Once the first sentence is out, the nerves often shrink with every line.',
+          next: 'Next time, practice your opening sentence until you know it cold. A strong start carries you through the shaky part.',
+          close: 'Brave doesn’t mean not nervous. It means nervous and doing it anyway.' },
+        { id: 'nurse', kind: 'risky', act: 'lie', label: 'Say you feel sick and ask to go to the nurse',
+          impact: 'The fear drops right away, and that relief is real. But the presentation is still waiting tomorrow, and now the fear has had a whole night to grow. Skipping it teaches your brain that presenting really is dangerous.',
+          next: 'Tell your teacher the true thing instead: “I’m really nervous.” Teachers hear that a lot, and most have ways to help.',
+          close: 'Nerves get smaller when you walk through them, not around them.' },
+        { id: 'golast', kind: 'mixed', act: 'ask', label: 'Ask your teacher if you can go last',
+          impact: 'Asking for what you need is a good skill, and a few extra minutes can help you steady yourself. But waiting can also give the nerves more time to build while you watch everyone else finish.',
+          next: 'If you do wait, use the time. Breathe slowly, read your first line in your head, and pick one friendly face to look at.',
+          close: 'Extra time helps most when you use it to get ready.' }
+      ]
+    },
+
+    /* ───────── Safety and asking for help ───────── */
+    {
+      id: 'ride', topic: 'safety', title: 'A ride you didn’t expect', place: 'School gate · after practice',
+      text: 'Practice ran late and your ride isn’t here. A car pulls up. A man you’ve seen at a few games rolls down the window. “I’m Luca’s uncle. Your mom sent me. Hop in.” Your mom never mentioned this.',
+      ask: 'He’s waiting with the engine running. What do you do?',
+      alt: 'At the school gate, you stand alone hugging your arms, looking uneasy and unsure.',
+      talk: 'Does your family have a pickup plan or a code word? Which adults could you go to if a plan changes suddenly?',
+      adult: 'coach',
+      note: 'This practice is about being offered a ride by someone you don’t know well. You can skip it, and you can always talk with a trusted adult instead.',
+      scene: { bg: 'gate', me: ['uneasy', 'hug'], them: [], extra: '?' },
+      choices: [
+        { id: 'getin', kind: 'risky', act: 'giveIn', to: 'solo', label: 'Get in, since he knows your friend and your mom',
+          impact: 'He might be telling the truth. But you can’t check from the sidewalk, and anyone can learn a name or two. Once you’re in a car, you have far fewer choices than you do standing outside it.',
+          next: 'Stay out of the car and step back. Say, “I need to check with my mom first,” and go find your coach or another adult you know.',
+          close: 'You never have to be polite about your own safety.' },
+        { id: 'waitalone', kind: 'mixed', act: 'refuse', to: 'solo', label: 'Say, “No thanks, I’ll wait,” and stay at the gate alone',
+          impact: 'Saying no and staying out of the car is exactly the right call. But you’re still alone at the gate, it’s getting late, and no adult knows what just happened or where you are.',
+          next: 'Walk back to where your coach or other adults are. Tell them about the car, and call home from there.',
+          close: 'A strong no works best with a safe place to go next.' },
+        { id: 'findcoach', kind: 'strong', act: 'tell', label: 'Step back, say “I’ll check first,” and go find your coach',
+          impact: 'You keep your distance, and you don’t have to decide whether he’s telling the truth. Your coach can call your mom in one minute. If the ride is real, nothing is lost. If it isn’t, you’re already safe.',
+          next: 'Talk with your family about a pickup plan, like a code word that only you and your trusted adults know.',
+          close: 'Checking first is never rude. Safe adults understand.' }
+      ]
+    },
+    {
+      id: 'backpack', topic: 'safety', title: 'What’s in the backpack', place: 'Lockers · before first bell',
+      text: 'At the lockers, Emeka unzips his backpack a little. Inside is a pocketknife. “It’s my brother’s. Cool, right?” he whispers. “Don’t tell anyone. I’d be in so much trouble.” Your stomach drops. You like Emeka.',
+      ask: 'The bell is about to ring. What do you do?',
+      alt: 'In a school hallway, a grinning boy talks quietly to you while you stand tense and alarmed.',
+      talk: 'What is the difference between a secret that is fun to keep and a secret that could get someone hurt?',
+      adult: 'teacher',
+      note: 'This practice is about a friend who brings something dangerous to school. You can skip it, and you can always talk with a trusted adult instead.',
+      scene: { bg: 'hall', me: ['alarmed', 'tense'], them: [['k10', 'cheeky', 'half']], extra: '!' },
+      choices: [
+        { id: 'takehome', kind: 'mixed', act: 'calm', label: 'Tell Emeka, “That’s not safe here. Take it home,” and say nothing else',
+          impact: 'Telling Emeka the truth to his face takes courage, and he may even listen. But the knife is still in the building all day, and no adult who could keep everyone safe knows it’s there.',
+          next: 'Take the next step and quietly tell a teacher or counselor right away. You can say, “I’m worried about something in a friend’s backpack.”',
+          close: 'Some problems are too big for kids to hold alone.' },
+        { id: 'teacher', kind: 'strong', act: 'tell', label: 'Go straight to a teacher and quietly say what you saw',
+          impact: 'A teacher can handle it calmly and privately, before anyone gets hurt. Emeka may be upset with you at first. But an adult stepping in early is far better for him than an accident, or someone else finding it.',
+          next: 'You don’t have to confront Emeka or touch the backpack. Tell the adult what you saw and where, and let them take it from there.',
+          close: 'Telling to keep people safe is not snitching.' },
+        { id: 'promise', kind: 'risky', act: 'giveIn', label: 'Promise to keep it secret and ask to see it',
+          impact: 'Keeping the promise feels loyal. But now you are carrying a secret that could get someone hurt, and handling the knife puts you in the middle of it. Accidents happen fast, even when nobody means harm.',
+          next: 'A promise like this one is okay to break. Step away and tell a teacher or another trusted adult as soon as you can.',
+          close: 'Safety secrets are the ones you’re allowed to tell.' }
+      ]
     }
   ];
+
+  /* Pictures for the first 24 scenarios, whose scenes are hand-drawn in art.js:
+     choice id → act, or 'act:to' where to is the person sharing the picture. */
+  var PICS = {
+    heated: { snap: 'yell', walk: 'calm', stew: 'silent' },
+    blamed: { yell: 'yell', avoid: 'walk', cool: 'calm' },
+    quiet: { ask: 'ask', ignore: 'ignore', others: 'phone' },
+    apology: { normal: 'ignore', sorry: 'kind', but: 'lie' },
+    vape: { take: 'giveIn', no: 'refuse', later: 'lie' },
+    dare: { excuse: 'lie', go: 'giveIn', offer: 'calm' },
+    directions: { raise: 'ask:adult', copy: 'write', pretend: 'worry' },
+    talkedover: { giveup: 'silent', shutdown: 'yell', speak: 'calm' },
+    wronganswer: { laugh: 'joke:2', support: 'kind:2', quiet: 'ignore:2' },
+    badgrade: { show: 'ask', dismiss: 'calm', offer: 'help' },
+    phonegrab: { hand: 'giveIn', boundary: 'refuse', grabback: 'grab' },
+    nickname: { meaner: 'yell', laughoff: 'lie', firm: 'calm' },
+    picture: { forward: 'post', emoji: 'phone', support: 'kind' },
+    password: { keep: 'refuse', share: 'giveIn', fake: 'lie' },
+    joke: { join: 'joke:2', speak: 'calm:0', silent: 'ignore:2' },
+    leftout: { whisper: 'walk:2', hi: 'kind:2', pretend: 'ignore:2' },
+    answers: { send: 'post', read: 'ignore', help: 'kind' },
+    broken: { tell: 'tell', note: 'write', hide: 'hide:solo' },
+    takeover: { let: 'silent:1', argue: 'yell:1', split: 'ask:1' },
+    missingpart: { pileon: 'yell:1', ask: 'ask:1', doit: 'write' },
+    name: { later: 'silent:1', say: 'calm:0', laugh: 'joke:1' },
+    food: { scoot: 'walk:1', ask: 'kind:1', stay: 'silent:1' },
+    secret: { promise: 'help', together: 'tell', brush: 'ignore' },
+    smoke: { check: 'giveIn', keepwalking: 'walk', tell: 'tell' }
+  };
+  var CASTING = { picture: { foil: 'k3' }, answers: { foil: 'k5' }, secret: { adult: 'counselor' } };
+  SCENARIOS.forEach(function (s) {
+    var m = PICS[s.id]; if (!m) return;
+    Object.assign(s, CASTING[s.id] || {});
+    s.choices.forEach(function (c) {
+      var p = (m[c.id] || 'calm').split(':');
+      c.act = p[0];
+      if (p[1] != null) c.to = /^\d+$/.test(p[1]) ? Number(p[1]) : p[1];
+    });
+  });
 
   var KIND = {
     strong: { tag: 'Helps', heading: 'That choice helps.', nextLabel: 'Your next step' },
@@ -564,7 +791,9 @@
   var VALUES = ['Staying safe', 'Being fair', 'Kindness', 'Courage', 'Honesty', 'Staying calm', 'Fitting in'];
 
   global.CRData = {
-    topics: TOPICS, scenarios: SCENARIOS, kind: KIND, values: VALUES,
+    groups: GROUPS, topics: TOPICS, scenarios: SCENARIOS, kind: KIND, values: VALUES,
+    add: function (list) { list.forEach(function (x) { SCENARIOS.push(x); }); },
+    group: function (id) { return GROUPS.filter(function (g) { return g.id === id; })[0]; },
     featured: ['joke', 'heated', 'picture'],
     topic: function (id) { return TOPICS.filter(function (t) { return t.id === id; })[0]; },
     scenario: function (id) { return SCENARIOS.filter(function (s) { return s.id === id; })[0]; }

@@ -1,9 +1,9 @@
 Choice Ripple
 =============
 A practice app for students and the adults who support them. Students
-rehearse real-life social situations, choose how they would respond, and read
-a reflection written for that exact choice. Parents and teachers open the
-student's own profile and follow their practice progress.
+practice real-life situations, choose how they would respond, see what could
+happen, and write a short reflection. Parents and teachers assign practice
+and follow each student's progress.
 
 To open
 -------
@@ -12,38 +12,87 @@ Keep the css and js folders beside index.html.
 
 What's inside
 -------------
-index.html        App shell
-css/styles.css    Styling (phone-first; dark "midnight" theme, ripple rings)
-js/data.js        12 topics, 24 scenarios, 72 choice-specific reflections
-js/art.js         Anime-style scene art, drawn as SVG - one scene per scenario
-js/app.js         Profiles, practice flow, parent and teacher views
+index.html          App shell
+css/styles.css      Styling (phone-first; dark "midnight" theme, ripple rings)
+js/data.js          Sections, the 12 topics, and the 32 Everyday Life scenarios
+js/data-faith.js    The 16 Faith and Spiritual Growth scenarios
+js/art.js           Anime-style art drawn as SVG: characters, scenes, and a
+                    picture for every choice and its outcome
+js/app.js           Profiles, the practice flow, parent and teacher views
+
+The library: 48 scenarios, 12 topics, 4 scenarios in each
+---------------------------------------------------------
+Everyday Life (32)
+  Bullying and exclusion · Conflict and anger · Friendship and peer
+  pressure · Digital choices and social media · Honesty and integrity ·
+  Emotions and self-control · Communication and respect · Safety and
+  asking for help
+Faith and Spiritual Growth (16)
+  Fear and trusting God · Prayer and patience · Forgiveness and grace ·
+  Identity, purpose, and doing what is right
+
+Students see only the practices assigned to them, plus any optional ones a
+parent or teacher makes available. Parents and teachers can browse and
+preview the whole library ("Browse the full library").
 
 How it works
 ------------
-Home     "See how it works" previews any scenario without saving anything.
-Student  Pick a profile -> Up next -> read -> choose -> Continue ->
-         reflection -> Next scenario. Read-aloud is on every scenario,
-         its choices, and every reflection.
+Home     "See how it works" previews a scenario without saving anything.
+Student  Pick a profile -> Up next. Each practice has five steps, and a
+         student has to finish each one before the next opens:
+           1 Situation          the scenario, its picture, and Listen
+           2 Your choice        three options, each with a picture
+           3 What could happen  the choice beside its likely outcome
+                                (cause and effect), kept apart from...
+           4 Reflect            why they chose it and what they might do
+                                next time, in at least 10 words
+           5 Complete           a message for that scenario and choice,
+                                20 Courage Credits, their own reflection,
+                                then the next scenario or back to practice
+         Read-aloud is on every step.
+         "Edit my character" lets a student make their character look like
+         them (skin tone, hair or head covering, colours, top, glasses).
+         That character is drawn as "you" in the scenes, in the picture for
+         each choice, and in what could happen.
+         Courage Credits: 20 for each finished practice, the same for every
+         choice. They celebrate practice, not perfect answers.
 Parent   Your students -> Open profile -> completed practices, the choice
-         made, the reflection the student read, a question to talk about,
-         progress by topic, and assigning practice.
+         made, what the student read and what they wrote, a question to
+         talk about, progress by topic, and assigning practice.
 Teacher  Your classes and groups -> open one -> roster, how the class is
          choosing on each assigned scenario (with a class discussion
          question), and assigning practice to everyone at once. Open a
          student for the same profile and progress page a parent sees.
          Groups can be a class, a small group, or an ISS / detention group.
-         Students see who assigned each practice (parent or teacher).
+Assign   Pick a section (Everyday Life or Faith and Spiritual Growth), then
+         "Assign" a practice (it goes into the student's Up next) or mark
+         it "Optional" (available, not required). Students see who each
+         practice is from.
+Back     Every parent and teacher page has a Back button that returns to
+         the page you came from.
 
 Editing content
 ---------------
-Scenarios live in js/data.js. Each choice carries its own reflection:
-  impact  what that specific choice likely does
-  next    a supportive next step or better option
-  close   a short closing message
-A scenario's picture is the function with the same id in SCENES (js/art.js).
+Scenarios live in js/data.js and js/data-faith.js. Each choice carries:
+  impact  what that specific choice could do (step 3)
+  next    a supportive next step or better option (step 4)
+  close   a short closing line (step 5)
+  act     which picture shows the choice (the list is ACTS in js/art.js)
+  to      optional: who shares that picture (a person in the scene,
+          'adult', or 'solo')
+A new scenario's picture is described by its `scene` line: the background,
+the student's expression and pose, and up to two other people. The first 24
+scenarios have hand-drawn scenes instead: the function with the same id in
+SCENES (js/art.js).
 
 Notes
 -----
+* Read-aloud uses the voices already on the device and picks the most
+  natural-sounding English one it finds (for example the "Natural" voices
+  in Microsoft Edge, Google voices in Chrome, enhanced voices on iPhone,
+  iPad and Mac). A student can choose another voice on the character page.
+  How natural it sounds depends on the device; a human-quality voice on
+  every device would need a paid text-to-speech service.
 * Fonts: Bricolage Grotesque (headings) and Atkinson Hyperlegible Next
   (text) load from Google Fonts when online. Offline, the app falls back
   to system fonts and still works.

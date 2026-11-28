@@ -250,6 +250,9 @@
       case 'lunchbox': return g('<rect x="-12" y="-6" width="24" height="13" rx="2.6" fill="#e8b96a" ' + ST + ' stroke-width="1"/><path d="M-12,-2.5h24" stroke="' + INK + '" stroke-width=".9"/><rect x="-2.5" y="-4.3" width="5" height="3.4" rx="1" fill="#fff6dd" ' + ST + ' stroke-width=".7"/>');
       case 'vape': return g('<rect x="-5.5" y="-2" width="11" height="4" rx="2" fill="#6b7186" ' + ST + ' stroke-width=".9" transform="rotate(-20)"/><g fill="#eef0f3" opacity=".9"><circle cx="8" cy="-7" r="2.6"/><circle cx="11.5" cy="-10.5" r="3.3"/><circle cx="7.5" cy="-13.5" r="2.4"/></g>');
       case 'pencil': return g('<path d="M-1,-9 L1.4,-9 L1.4,4 L.2,7 L-1,4Z" fill="#e9c46a" ' + ST + ' stroke-width=".8" transform="rotate(25)"/>');
+      case 'ball': return g('<circle cx="0" cy="0" r="9.5" fill="#fffdf6" ' + ST + ' stroke-width="1.1"/><path d="M0,-4.2l4,2.9l-1.5,4.7h-5l-1.5,-4.7z" fill="' + INK + '"/><path d="M0,-4.2v-5M4,-1.3l4.6,-1.6M2.5,3.4l3,4M-2.5,3.4l-3,4M-4,-1.3l-4.6,-1.6" stroke="' + INK + '" stroke-width=".9"/>');
+      case 'cash': return g('<rect x="-11" y="-6" width="22" height="12" rx="1.6" fill="#b9d9b0" ' + ST + ' stroke-width="1" transform="rotate(-8)"/><circle cx="0" cy="0" r="3.4" fill="#8fbf8a" ' + ST + ' stroke-width=".8"/>');
+      case 'controller': return g('<path d="M-12,-5 h24 a5,5 0 0 1 5,5 l1.5,7 a3.4,3.4 0 0 1 -6.4,2 l-2,-4 h-20.2 l-2,4 a3.4,3.4 0 0 1 -6.4,-2 l1.5,-7 a5,5 0 0 1 5,-5z" fill="#59607a" ' + ST + ' stroke-width="1"/><path d="M-9,-1v5M-11.5,1.5h5" stroke="#d9d3e2" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="2.6" r="1.6" fill="#e2755f"/><circle cx="11" cy="-.4" r="1.6" fill="#e3b85f"/>');
       default: return '';
     }
   }
@@ -338,7 +341,18 @@
     return { back: H.back, s: s, over: H.over };
   }
 
+  var REC = null;
+  var LOOK_KEYS = ['skin', 'hair', 'hc', 'top', 'tc', 'tc2', 'glasses'];
+  function pick(l) { var n = {}; LOOK_KEYS.forEach(function (k) { if (l[k] != null) n[k] = l[k]; }); return n; }
+  function wear(o, look) {
+    if (!look) return o;
+    var n = Object.assign({}, o), team = o.top === 'jersey';
+    LOOK_KEYS.forEach(function (k) { if (team && (k === 'top' || k === 'tc' || k === 'tc2')) return; n[k] = look[k]; });
+    if (!team) n.short = null;
+    return n;
+  }
   function C(x, y, o) {
+    if (REC) { var ri = REC.n++; if (ri === REC.me) o = wear(o, REC.look); else REC.cast.push(o); }
     var lk = {
       skin: SKIN[o.skin] || o.skin || SKIN.b, hair: o.hair || 'short', hc: o.hc || '#3a2c2e', top: o.top || 'tee', tc: o.tc || '#8fae8b', tc2: o.tc2,
       look: o.look, iris: o.iris, glasses: o.glasses, num: o.num
@@ -450,10 +464,42 @@
         '<rect x="30" y="104" width="150" height="8" rx="3" fill="#a58d7a" stroke="#7d6a5d" stroke-width="1"/><rect x="30" y="118" width="150" height="8" rx="3" fill="#a58d7a" stroke="#7d6a5d" stroke-width="1"/>' +
         '<rect y="132" width="200" height="18" fill="#a9a3bb"/>';
     },
+    home: function () {
+      return '<rect width="200" height="150" fill="#f1e5d3"/>' +
+        '<rect x="118" y="12" width="62" height="50" rx="3" fill="#d5e7ee" stroke="#c7b698" stroke-width="2.6"/><path d="M149,12v50M118,37h62" stroke="#c7b698" stroke-width="1.8"/>' +
+        '<path d="M112,10 q6,26 0,56 M186,10 q-6,26 0,56" fill="none" stroke="#d9a7b0" stroke-width="5" stroke-linecap="round"/>' +
+        '<rect x="16" y="16" width="30" height="24" rx="2" fill="#fffdf6" stroke="#b39672" stroke-width="2.4"/><circle cx="26" cy="26" r="4" fill="#e9c46a"/><path d="M18,38 l9,-8 l6,5 l5,-4 l6,7z" fill="#9dbba8"/>' +
+        '<rect x="64" y="20" width="4" height="52" fill="#b9a98d"/><path d="M52,22 h28 l-6,-16 h-16z" fill="#fbe9b7" stroke="#c7b698" stroke-width="1.4"/>' +
+        '<rect y="104" width="200" height="46" fill="#dccbb0"/><path d="M0,104h200" stroke="#c7b698" stroke-width="1.2"/>' +
+        '<rect x="-8" y="86" width="216" height="40" rx="12" fill="#9fb4c9" stroke="#7f95ab" stroke-width="1.4"/><rect x="-8" y="112" width="216" height="40" rx="6" fill="#8ea5bd" stroke="#7f95ab" stroke-width="1.4"/>';
+    },
+    church: function () {
+      var s = '<rect width="200" height="150" fill="#ece4d6"/>', cols = ['#e9c46a', '#d9a7b0', '#9dbba8', '#a9b7d6', '#c9aacb', '#e6b08a'];
+      [34, 100, 166].forEach(function (x, k) {
+        s += '<path d="M' + (x - 17) + ',86 V36 Q' + x + ',2 ' + (x + 17) + ',36 V86Z" fill="#f7f1e3" stroke="#b9a98d" stroke-width="2.6"/>';
+        for (var i = 0; i < 6; i++) s += '<rect x="' + (x - 13 + (i % 2) * 14) + '" y="' + (36 + Math.floor(i / 2) * 16) + '" width="12" height="14" rx="1.5" fill="' + cols[(i + k * 2) % 6] + '" opacity=".8"/>';
+        s += '<path d="M' + (x - 13) + ',34 Q' + x + ',10 ' + (x + 13) + ',34Z" fill="' + cols[(k + 3) % 6] + '" opacity=".8"/><path d="M' + x + ',16V86" stroke="#b9a98d" stroke-width="1.6"/>';
+      });
+      s += '<rect y="100" width="200" height="50" fill="#d8c9ae"/>';
+      for (var r = 0; r < 2; r++) s += '<rect x="-6" y="' + (104 + r * 22) + '" width="212" height="16" rx="3" fill="#a9825f" stroke="#86664a" stroke-width="1.2"/><path d="M0,' + (108 + r * 22) + 'h200" stroke="#c19a76" stroke-width="1.6"/>';
+      return s;
+    },
+    bus: function () {
+      var s = '<rect width="200" height="150" fill="#dcd6c8"/><rect y="0" width="200" height="12" fill="#c9c2b2"/>';
+      for (var i = 0; i < 4; i++) {
+        var x = 6 + i * 49;
+        s += '<rect x="' + x + '" y="20" width="42" height="46" rx="6" fill="url(#crSky)" stroke="#9aa3ad" stroke-width="2.4"/><circle cx="' + (x + 12) + '" cy="60" r="10" fill="#bcd5b2" opacity=".9"/><circle cx="' + (x + 30) + '" cy="64" r="8" fill="#c9dcbc" opacity=".9"/><rect x="' + x + '" y="20" width="42" height="46" rx="6" fill="none" stroke="#9aa3ad" stroke-width="2.4"/>';
+      }
+      s += '<path d="M0,14h200" stroke="#e3b85f" stroke-width="2.4"/><rect y="78" width="200" height="72" fill="#cfc8b8"/>';
+      for (var k = 0; k < 3; k++) s += '<rect x="' + (-14 + k * 78) + '" y="84" width="64" height="76" rx="12" fill="#6f93a8" stroke="#557687" stroke-width="1.6"/><rect x="' + (-8 + k * 78) + '" y="90" width="52" height="10" rx="5" fill="#86a8ba"/>';
+      return s;
+    },
     plain: function () {
       return '<rect width="200" height="150" fill="#eef0e6"/><g fill="none" stroke="#d6dccb" stroke-width="2"><circle cx="150" cy="40" r="20"/><circle cx="150" cy="40" r="38"/><circle cx="150" cy="40" r="58"/></g>';
     }
   };
+
+  Object.keys(BG).forEach(function (k) { var f = BG[k]; BG[k] = function () { if (REC) REC.bg = k; return f(); }; });
 
   /* ---------- props ---------- */
   function table(y, c) { c = c || '#e9cda6'; return '<rect x="-6" y="' + y + '" width="212" height="' + (156 - y) + '" rx="5" fill="' + c + '" ' + ST + ' stroke-width="1.3"/><path d="M0,' + (y + 5) + 'h200" stroke="' + light(c, 0.4) + '" stroke-width="2" stroke-linecap="round"/>'; }
@@ -693,9 +739,21 @@
 
   function esc(s) { return String(s || '').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
-  function scene(id, alt) {
-    var f = SCENES[id];
-    return '<svg class="art-svg" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice" role="img" aria-label="' + esc(alt || 'Scenario illustration') + '">' + DEFS + (f ? f() : BG.plain()) + '</svg>';
+  function svg(inner, alt) {
+    return '<svg class="art-svg" viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice" role="img" aria-label="' + esc(alt || 'Scenario illustration') + '">' + DEFS + inner + '</svg>';
+  }
+  /* Who is "you" in each hand-drawn scene: the index of that C() call, so the student's own
+     character can stand in. null = you are watching and are not in the picture. */
+  var ME = { heated: 1, blamed: 1, quiet: 1, apology: 1, vape: 1, dare: 2, directions: 1, talkedover: 2, wronganswer: null, badgrade: 0, phonegrab: 1, nickname: 1, picture: 0, password: 1, joke: null, leftout: null, answers: 0, broken: 0, takeover: 0, missingpart: null, name: null, food: null, secret: 1, smoke: 1 };
+  function draw(id, look) {
+    REC = { n: 0, me: ME[id], look: look || null, cast: [], bg: 'plain' };
+    var out; try { out = { inner: SCENES[id](), cast: REC.cast, bg: REC.bg }; } finally { REC = null; }
+    return out;
+  }
+  var PROBE = {};
+  function probe(id) { return PROBE[id] || (PROBE[id] = SCENES[id] ? draw(id) : { cast: [], bg: 'plain' }); }
+  function scene(id, alt, look, spec) {
+    return svg(spec ? stage(spec, look) : SCENES[id] ? draw(id, look).inner : BG.plain(), alt);
   }
 
   /* profile avatars reuse the same character parts */
@@ -713,11 +771,173 @@
     { skin: 'e', hair: 'twists', hc: '#241d22', top: 'tee', tc: '#8fae8b', bg: '#dbe9ef', glasses: 1 },
     { skin: 'c', hair: 'pony', hc: '#8a5a3b', top: 'jersey', tc: '#c9806b', tc2: '#fbf3e4', bg: '#f6e0e0' }
   ];
-  function avatar(i, label) {
-    var a = AVATARS[((i | 0) % AVATARS.length + AVATARS.length) % AVATARS.length];
+  function preset(i) { return AVATARS[((i | 0) % AVATARS.length + AVATARS.length) % AVATARS.length]; }
+  function avatar(a, label) {
+    if (!a || typeof a !== 'object') a = preset(a);
     return '<svg class="avatar-svg" viewBox="0 0 64 64" role="img" aria-label="' + esc(label || 'Profile picture') + '">' + DEFS +
-      '<rect width="64" height="64" fill="' + a.bg + '"/>' + C(32, 34, Object.assign({ s: 1.12, ex: 'smile' }, a)) + '</svg>';
+      '<rect width="64" height="64" fill="' + (a.bg || '#dfeee6') + '"/>' + C(32, 34, Object.assign({ s: 1.12, ex: 'smile' }, pick(a))) + '</svg>';
+  }
+  /* a bigger, waving version for the character maker */
+  function portrait(a, label) {
+    if (!a || typeof a !== 'object') a = preset(a);
+    return '<svg class="avatar-svg" viewBox="0 0 120 120" role="img" aria-label="' + esc(label || 'Your character') + '">' + DEFS +
+      '<rect width="120" height="120" fill="' + (a.bg || '#dfeee6') + '"/><g fill="none" stroke="#fff" stroke-width="1.6" opacity=".55"><circle cx="60" cy="60" r="34"/><circle cx="60" cy="60" r="50"/><circle cx="60" cy="60" r="66"/></g>' +
+      C(60, 56, Object.assign({ s: 1.75, ex: 'happy', pose: 'wave' }, pick(a))) + '</svg>';
+  }
+  var OPTIONS = {
+    skin: ['a', 'b', 'c', 'd', 'e', 'f'], skinHex: SKIN,
+    hair: [['short', 'Short'], ['swoop', 'Swoop'], ['wisp', 'Fringe'], ['spiky', 'Spiky'], ['fade', 'Fade'], ['bob', 'Bob'], ['long', 'Long'], ['wavy', 'Wavy'], ['pony', 'Ponytail'], ['buns', 'Buns'], ['puffs', 'Puffs'], ['braids', 'Braids'], ['twists', 'Twists'], ['afro', 'Afro'], ['curly', 'Curly'], ['beanie', 'Beanie'], ['hijab', 'Hijab']],
+    hc: ['#241d22', '#3a2c2e', '#5a3d33', '#8a5a3b', '#b98a52', '#e0c27a', '#c9603e', '#9a9aa6', '#8fb3a6', '#a99ac9', '#d9a7b0', '#59607a'],
+    top: [['tee', 'T-shirt'], ['hoodie', 'Hoodie'], ['sweater', 'Sweater'], ['collar', 'Collared shirt'], ['jacket', 'Jacket'], ['jersey', 'Jersey']],
+    tc: ['#7d9cc0', '#8fae8b', '#c9806b', '#e3b85f', '#a99ac9', '#d9a7b0', '#5d9ea0', '#59607a', '#f3ead9', '#cf6a6a'],
+    bg: ['#dfeee6', '#f6e3d3', '#e6e2f3', '#fbefc9', '#dbe9ef', '#f6e0e0']
+  };
+
+  /* ---------- the cast for staged pictures ---------- */
+  var ADULTS = {
+    teacher: { skin: 'c', hair: 'bob', hc: '#4a3a35', top: 'collar', tc: '#6f8fb0', tc2: '#f3ead9', glasses: 1 },
+    coach: { skin: 'd', hair: 'fade', hc: '#2b2228', top: 'jacket', tc: '#c9806b', tc2: '#f3ead9' },
+    mom: { skin: 'b', hair: 'wavy', hc: '#5a3d33', top: 'sweater', tc: '#b98fb0', tc2: '#f1e3ee' },
+    dad: { skin: 'b', hair: 'short', hc: '#3a2c2e', top: 'collar', tc: '#8fae8b', tc2: '#f3ead9' },
+    grandma: { skin: 'c', hair: 'curly', hc: '#c9c5cc', top: 'sweater', tc: '#d9a7b0', tc2: '#f8ecee', glasses: 1 },
+    pastor: { skin: 'e', hair: 'fade', hc: '#3a3336', top: 'collar', tc: '#59607a', tc2: '#f3ead9' },
+    leader: { skin: 'a', hair: 'pony', hc: '#8a5a3b', top: 'hoodie', tc: '#5d9ea0' },
+    counselor: { skin: 'f', hair: 'afro', hc: '#241d22', top: 'jacket', tc: '#a99ac9', tc2: '#f3ead9', glasses: 1 }
+  };
+  function npc(who, look) {
+    if (ADULTS[who]) {
+      var a = Object.assign({ adult: 1 }, ADULTS[who]);
+      if (look && /^(mom|dad|grandma)$/.test(who)) a.skin = look.skin;   // family looks like family
+      return a;
+    }
+    var i = (parseInt(String(who).slice(1), 10) || 1) - 1, k = preset(i);
+    if (look && k.skin === look.skin && k.hair === look.hair) k = preset(i + 5);   // no accidental twins
+    return k;
+  }
+  var DEF_LOOK = AVATARS[1];
+  function fig(x, y, s, look, f, o) {
+    return C(x, y, Object.assign({ s: s, look: [1.2, 0] }, pick(look), { ex: f[0], pose: f[1], item: f[2] }, o || {}));
+  }
+  function grown(x, y, s, n, f, o) { return fig(x, n.adult ? y - 8 : y, n.adult ? s * 1.15 : s, n, f, Object.assign({ flip: 1 }, o || {})); }
+  function heart(x, y, k) { return '<path transform="translate(' + x + ' ' + y + ') scale(' + (k || 1) + ')" d="M0,4 C-7,-5 -15,3 0,14 C15,3 7,-5 0,4Z" fill="#e58a9a" ' + ST + ' stroke-width="1.1"/>'; }
+  function storm(x, y) {
+    return '<g transform="translate(' + x + ' ' + y + ')"><path d="M-15,4 a8,8 0 0 1 6,-12 a10,10 0 0 1 18,0 a8,8 0 0 1 6,12z" fill="#8d8799" ' + ST + ' stroke-width="1.1"/><path d="M1,5 l-5,9 h6 l-4,9" fill="none" stroke="#e3b85f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>';
+  }
+  function rays() { return '<g fill="#fff3bf" opacity=".5"><path d="M100,-12 L34,150 H76Z"/><path d="M100,-12 L124,150 H170Z"/><path d="M100,-12 L92,150 H108Z"/></g>'; }
+  function sparkle(x, y, k, col) { return '<path transform="translate(' + x + ' ' + y + ') scale(' + k + ')" d="M0,-9 C1,-3 3,-1 9,0 C3,1 1,3 0,9 C-1,3 -3,1 -9,0 C-3,-1 -1,-3 0,-9Z" fill="' + (col || '#f0b93a') + '" stroke="#fffdf6" stroke-width="1.2"/>'; }
+  var EXTRA = {
+    ha: function (n) { return HA(n ? 92 : 134, 30, -10) + HA(n ? 110 : 152, 46, 8, 10); },
+    '?': function (n) { var x = n ? 100 : 142; return mark(x, 40, '?', 28, '#5f7fae', 10) + mark(x + 18, 60, '?', 16, '#5f7fae', -8); },
+    '!': function (n) { return mark(n ? 100 : 146, 42, '!', 30, '#c8574f', 8); },
+    dots: function (n) { return dots(n ? 93 : 136, 42, '#8d8799'); },
+    table: function () { return table(134, '#e4c9a0'); },
+    heart: function (n) { return heart(n ? 100 : 144, 26, 1.3); },
+    storm: function (n) { return storm(n ? 100 : 146, 30); },
+    light: function () { return ''; },
+    chat: function (n) { var x = n ? 72 : 120; return card(x, 8, 56, 20, scribble(x + 8, 15, 30)) + card(x + 12, 32, 50, 20, scribble(x + 20, 39, 24, '#c9a9a1'), '#fdeee9'); }
+  };
+  /* a scenario picture described as data: { bg, me: [expression, pose, item], them: [[who, expression, pose, item]], extra } */
+  function stage(spec, look) {
+    var me = look || DEF_LOOK, them = spec.them || [], n = them.length, x = spec.extra;
+    var s = (BG[spec.bg] || BG.plain)() + (x === 'light' ? rays() : '');
+    if (n > 1) s += grown(128, 74, 1.2, npc(them[0][0], look), them[0].slice(1)) + grown(174, 78, 1.2, npc(them[1][0], look), them[1].slice(1)) + fig(46, 84, 1.45, me, spec.me);
+    else if (n) s += grown(146, 80, 1.5, npc(them[0][0], look), them[0].slice(1)) + fig(56, 82, 1.5, me, spec.me);
+    else s += fig(x && x !== 'light' && x !== 'table' ? 72 : 100, 80, 1.6, me, spec.me);
+    return s + (x && EXTRA[x] ? EXTRA[x](n) : '');
   }
 
-  global.CRArt = { scene: scene, avatar: avatar, avatarCount: AVATARS.length, ids: Object.keys(SCENES) };
+  /* ---------- a picture for every choice (the cause) and for what could happen (the effect) ---------- */
+  var SHUT = { eyes: 'shut', mouth: 'smallsmile' };
+  var ACTS = {
+    calm: { me: ['firm', 'stop'], them: ['confused', 'down'], bub: 'line', good: ['smile', 'neutral'] },
+    yell: { me: ['shout', 'fists'], them: ['angry', 'tense'], bub: 'jag', mid: ['annoyed', 'annoyed'], bad: ['regret', 'shout'] },
+    ask: { me: ['talk', 'half'], them: ['neutral', 'down'], bub: '?' },
+    kind: { me: ['smile', 'wave'], them: ['hopeful', 'down'], bub: 'heart', good: ['happy', 'happy'] },
+    refuse: { me: ['firm', 'stop'], them: ['annoyed', 'shrug'], bub: 'no', good: ['smile', 'neutral'] },
+    honest: { me: ['regret', 'neck'], them: ['neutral', 'down'], bub: 'check' },
+    lie: { me: ['nervous', 'shrug'], them: ['confused', 'crossed'], bub: 'scrib', bad: ['worried', 'annoyed'] },
+    tell: { me: ['talk', 'half'], them: ['caring', 'down'], bub: 'line', adult: 1, good: ['hopeful', 'caring'], mid: ['uneasy', 'caring'], bad: ['worried', 'caring'] },
+    joke: { me: ['laugh', 'point'], them: ['hurt', 'down'], bub: 'ha' },
+    walk: { me: ['neutral', 'down'], them: ['confused', 'shrug'], away: 1, good: ['smile', 'neutral'] },
+    silent: { me: ['pout', 'crossed'], them: ['neutral', 'down'], bub: 'dots', mid: ['down', 'neutral'], bad: ['down', 'sad'] },
+    ignore: { me: ['neutral', 'hip'], them: ['sad', 'wave'], look: [-1.4, 0], bad: ['uneasy', 'hurt'] },
+    hide: { me: ['scared', 'faceHide'], them: ['curious', 'down'], bad: ['worried', 'annoyed'] },
+    giveIn: { me: ['uneasy', 'reach'], them: ['smirk', 'offer'], mid: ['uneasy', 'smirk'], bad: ['regret', 'smirk'] },
+    help: { me: ['caring', 'comfort'], them: ['sad', 'hug'], bub: 'heart', good: ['smile', 'hopeful'] },
+    breathe: { me: ['neutral', 'together'], over: SHUT, solo: 1, bub: 'breath' },
+    think: { me: ['thinking', 'chin'], solo: 1, bub: 'think' },
+    phone: { me: ['neutral', 'phone', 'phone'], solo: 1, bub: 'msg', look: [0, 1.4] },
+    post: { me: ['cheeky', 'phone', 'phone'], solo: 1, bub: 'send', look: [0, 1.4] },
+    block: { me: ['firm', 'phone', 'phone'], solo: 1, bub: 'shield', look: [0, 1.4] },
+    pray: { me: ['neutral', 'together'], over: SHUT, solo: 1, pre: 1 },
+    write: { me: ['thinking', 'write'], solo: 1, desk: 1, look: [0, 1.5] },
+    worry: { me: ['overwhelmed', 'headHold'], solo: 1, bub: 'storm' },
+    grab: { me: ['angry', 'reach'], them: ['shock', 'keepAway'], bub: '!', bad: ['regret', 'angry'] },
+    share: { me: ['smile', 'offer'], them: ['happy', 'down'], good: ['happy', 'happy'] },
+    read: { me: ['neutral', 'hold', 'book'], solo: 1, look: [0, 1.4] }
+  };
+  function bub(mx, inner, fill) { return bubble(mx + 10, 5, 46, 27, 'l', inner, fill); }
+  var BUB = {
+    line: function (mx) { return bub(mx, scribble(mx + 19, 15, 28)); },
+    '?': function (mx) { return bub(mx, mark(mx + 33, 26, '?', 19, '#5f7fae')); },
+    heart: function (mx) { return bub(mx, heart(mx + 33, 11, 0.95)); },
+    no: function (mx) { return bub(mx, '<path d="M' + (mx + 26) + ',11 l14,14 m0,-14 l-14,14" fill="none" stroke="#c8574f" stroke-width="3.4" stroke-linecap="round"/>'); },
+    check: function (mx) { return bub(mx, '<path d="M' + (mx + 24) + ',19 l6,6 l12,-13" fill="none" stroke="#4f9a78" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>'); },
+    scrib: function (mx) { return bub(mx, '<path d="M' + (mx + 19) + ',15 q4,-6 8,0 t8,0 t8,0 M' + (mx + 19) + ',23 q4,-6 8,0 t8,0" fill="none" stroke="#b7b0c2" stroke-width="2.2" stroke-linecap="round"/>'); },
+    dots: function (mx) { return bub(mx, dots(mx + 26, 19, '#8d8799')); },
+    jag: function (mx) {
+      var cx = mx + 36, cy = 20, d = '';
+      for (var i = 0; i < 16; i++) { var a = i * Math.PI / 8, r = i % 2 ? 13 : 23; d += (i ? 'L' : 'M') + (cx + Math.cos(a) * r * 1.2).toFixed(1) + ',' + (cy + Math.sin(a) * r * 0.82).toFixed(1); }
+      return '<path d="' + d + 'Z" fill="#fffdf6" ' + ST + ' stroke-width="1.2"/>' + mark(cx, 27, '!!', 17, '#c8574f');
+    },
+    ha: function (mx) { return HA(mx + 32, 22, -10) + HA(mx + 50, 38, 8, 10); },
+    '!': function (mx) { return mark(mx + 40, 34, '!', 28, '#c8574f', 8); },
+    think: function (mx) { return blob([[mx + 30, 16, 9], [mx + 42, 12, 10], [mx + 54, 17, 9], [mx + 42, 22, 9]], '#fffdf6', 2) + '<circle cx="' + (mx + 20) + '" cy="32" r="3" fill="#fffdf6" ' + ST + ' stroke-width="1"/>' + mark(mx + 42, 23, '?', 15, '#5f7fae'); },
+    breath: function (mx) { return '<g fill="none" stroke="#7fb7c9" stroke-width="2.4" stroke-linecap="round"><path d="M' + (mx + 16) + ',66 q10,-4 16,2 q6,6 14,0"/><path d="M' + (mx + 20) + ',76 q8,-3 13,2 q5,4 11,0" opacity=".7"/></g>'; },
+    msg: function (mx) { return card(mx + 22, 8, 44, 20, scribble(mx + 30, 15, 26)); },
+    send: function (mx) { return card(mx + 22, 8, 44, 22, '<path d="M' + (mx + 32) + ',19 h22 m-8,-7 l8,7 l-8,7" fill="none" stroke="#c8574f" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>', '#fdeee9'); },
+    shield: function (mx) { return '<path d="M' + (mx + 44) + ',6 l13,5 v9 q0,10 -13,15 q-13,-5 -13,-15 v-9z" fill="#dff1e6" ' + ST + ' stroke-width="1.2"/><path d="M' + (mx + 38) + ',20 l5,5 l8,-9" fill="none" stroke="#4f9a78" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>'; },
+    storm: function (mx) { return storm(mx + 40, 22); }
+  };
+  function veil(s, a) { return (BG[bgOf(s)] || BG.plain)() + '<rect width="200" height="150" fill="#fffdf6" opacity="' + a + '"/>'; }
+  function bgOf(s) { return s.scene ? s.scene.bg : probe(s.id).bg; }
+  function castOf(s, look) { return s.scene ? (s.scene.them || []).map(function (t) { return npc(t[0], look); }) : probe(s.id).cast.map(pick); }
+  /* who shares the picture with you: the scenario's adult, a named person, or nobody */
+  function partner(s, c, a, look, effect) {
+    if (c.to === 'solo') return null;
+    if (a.adult || c.to === 'adult') return npc(s.adult || 'teacher', look);
+    if (a.solo && c.to == null && !effect) return null;
+    var cast = castOf(s, look);
+    return cast[c.to | 0] || cast[0] || (s.foil ? npc(s.foil, look) : null);
+  }
+  function choicePic(s, c, look, alt) {
+    var a = ACTS[c.act] || ACTS.calm, o = partner(s, c, a, look), me = look || DEF_LOOK, mx = o ? 56 : 92;
+    var inner = veil(s, 0.3) + (a.pre ? rays() : '');
+    if (o) inner += grown(146, 80, 1.5, o, a.them || ['neutral', 'down']);
+    if (a.away) inner += '<path d="M76,66h15M80,80h13M76,94h15" fill="none" stroke="#8d8799" stroke-width="2.6" stroke-linecap="round" opacity=".8"/>' + fig(46, 82, 1.5, me, a.me, { flip: 1 });
+    else inner += fig(mx, 82, 1.5, me, a.me, { over: a.over, look: a.look || [o ? 1.2 : 0, 0] });
+    if (a.desk) inner += table(134, '#e4c9a0') + paperOn(mx + 4, 143, -6);
+    if (a.bub) inner += BUB[a.bub](mx);
+    return svg(inner, alt || 'A picture of this choice');
+  }
+  var FX = {
+    strong: { ex: ['smile', 'smile'], pose: 'down', col: '#3fbf8f', key: 'good' },
+    mixed: { ex: ['thinking', 'neutral'], pose: 'neck', col: '#e0a63a', key: 'mid' },
+    risky: { ex: ['regret', 'hurt'], pose: 'down', col: '#e2755f', key: 'bad' }
+  };
+  function effectPic(s, c, look, alt) {
+    var a = ACTS[c.act] || ACTS.calm, f = FX[c.kind] || FX.mixed, ex = a[f.key] || f.ex, o = partner(s, c, a, look, true), me = look || DEF_LOOK, mx = o ? 56 : 100;
+    var inner = veil(s, 0.42) + '<g fill="none" stroke="' + f.col + '" stroke-linecap="round"' + (c.kind === 'risky' ? ' stroke-dasharray="8 7"' : '') + '>';
+    for (var i = 1; i <= 5; i++) inner += '<circle cx="100" cy="96" r="' + (i * 23) + '" stroke-width="' + (3.4 - i * 0.4).toFixed(1) + '" opacity="' + (0.8 - i * 0.12).toFixed(2) + '"/>';
+    inner += '</g>';
+    if (o) inner += grown(146, 80, 1.5, o, [ex[1], /angry|shout|annoyed/.test(ex[1]) ? 'crossed' : /hurt|sad/.test(ex[1]) ? 'hug' : 'down'], /hurt|sad/.test(ex[1]) ? { tilt: 5, look: [0.4, 1] } : null);
+    inner += fig(mx, 82, 1.5, me, [ex[0], c.kind === 'strong' && o ? 'half' : f.pose], c.kind === 'risky' ? { tilt: -4, look: [0.6, 1] } : null);
+    if (c.kind === 'strong') inner += sparkle(100, 28, 1.25) + sparkle(118, 44, 0.7) + sparkle(84, 46, 0.6, '#59c9a0');
+    else if (c.kind === 'mixed') inner += mark(100, 42, '?', 28, '#c98a1e', 8);
+    else inner += storm(100, 30);
+    return svg(inner, alt || 'A picture of what could happen');
+  }
+
+  global.CRArt = { scene: scene, avatar: avatar, portrait: portrait, choicePic: choicePic, effectPic: effectPic, preset: function (i) { return Object.assign({}, preset(i)); },
+    options: OPTIONS, acts: Object.keys(ACTS), avatarCount: AVATARS.length, ids: Object.keys(SCENES) };
 })(window);
