@@ -442,15 +442,14 @@
     for (var i = 0; i < A.avatarCount; i++) presets += '<button type="button" class="preset" data-act="preset" data-i="' + i + '" aria-label="Start from character ' + (i + 1) + '"><span class="avatar md">' + A.avatar(i, '') + '</span></button>';
     return '<div class="page"><a class="back" href="#/student">' + ICON.back + ' Back to my practice</a>' +
       '<form class="panel maker" id="profileForm">' +
-        '<div class="maker-side"><p class="eyebrow">My character</p><h1>Make it look like you.</h1>' +
+        /* the preview follows you down the options; it sticks inside its own column, never over the buttons */
+        '<div class="maker-side"><div class="maker-stick"><p class="eyebrow">My character</p><h1>Make it look like you.</h1>' +
           '<div class="maker-preview" id="lookPreview">' + A.portrait(L, 'Your character') + '</div>' +
           '<p class="hint">This is who you’ll see in your scenarios and in the picture for each choice. Your parent and teacher see the same character on your progress page.</p>' +
-          '<label class="field"><span>Name</span><input name="name" maxlength="40" required value="' + esc(draft.name) + '" autocomplete="off"></label>' +
-          '<label class="field"><span>Grade</span><select name="grade">' + grades.map(function (g) { return '<option' + (g === draft.grade ? ' selected' : '') + '>' + g + '</option>'; }).join('') + '</select></label>' +
-          '<div class="field voice-field"><label for="voicePick"><span>Read-aloud voice</span></label><div class="voice-row"><select id="voicePick" name="voice">' + Voice.options() + '</select>' +
-            '<button type="button" class="btn small ghost" data-act="voice-test">' + ICON.sound + ' Hear it</button></div></div>' +
-        '</div>' +
+        '</div></div>' +
         '<div class="maker-opts">' +
+          '<div class="maker-about"><label class="field"><span>Name</span><input name="name" maxlength="40" required value="' + esc(draft.name) + '" autocomplete="off"></label>' +
+            '<label class="field"><span>Grade</span><select name="grade">' + grades.map(function (g) { return '<option' + (g === draft.grade ? ' selected' : '') + '>' + g + '</option>'; }).join('') + '</select></label></div>' +
           '<fieldset class="field"><legend>Quick start</legend><div class="presets">' + presets + '</div></fieldset>' +
           swatches('skin', O.skin, L.skin, 'Skin tone') +
           '<fieldset class="field"><legend>Hair or head covering</legend><div class="hairs">' + O.hair.map(function (h) {
@@ -463,6 +462,8 @@
           swatches('tc', O.tc, L.tc, 'Top colour') +
           '<fieldset class="field"><legend>Glasses</legend><div class="optchips"><label class="optchip"><input type="checkbox" name="glasses"' + (L.glasses ? ' checked' : '') + '><span>I wear glasses</span></label></div></fieldset>' +
           swatches('bg', O.bg, L.bg || O.bg[0], 'Background') +
+          '<div class="field voice-field"><label for="voicePick"><span>Read-aloud voice</span></label><div class="voice-row"><select id="voicePick" name="voice">' + Voice.options() + '</select>' +
+            '<button type="button" class="btn small ghost" data-act="voice-test">' + ICON.sound + ' Hear it</button></div></div>' +
         '</div>' +
         '<div class="actions maker-actions"><button class="btn primary" type="submit">Save my character</button><a class="btn ghost" href="#/student">Cancel</a></div>' +
       '</form></div>';

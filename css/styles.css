@@ -484,7 +484,9 @@ section.block { margin-top: 60px; }
 .maker-side h1 { font-size: clamp(26px, 4vw, 34px); }
 .maker-preview { width: min(100%, 250px); aspect-ratio: 1; border-radius: 30px; overflow: hidden; margin: 18px 0 12px; border: 1px solid rgba(255, 255, 255, .3); box-shadow: 0 0 0 5px rgba(255, 255, 255, .06), 0 26px 50px -22px rgba(0, 0, 0, .9), 0 0 70px -20px rgba(140, 115, 255, .65); }
 .maker-preview svg { display: block; width: 100%; height: 100%; }
-.maker-opts .field:first-child { margin-top: 0; }
+.maker-about { display: grid; grid-template-columns: 1fr minmax(120px, 170px); gap: 18px 14px; }
+.maker-about .field { margin-top: 0; }
+.voice-row .btn { flex: none; min-height: 48px; }
 .maker-actions { grid-column: 1 / -1; }
 .field > label > span { display: block; font-weight: 750; font-size: 14.5px; margin-bottom: 7px; color: #e4e7f5; }
 .voice-row { display: flex; gap: 8px; align-items: center; }
@@ -525,7 +527,8 @@ details.assign .gtabs { margin-top: 20px; }
 @media (min-width: 901px) {
   .steps3.four { grid-template-columns: repeat(4, 1fr); gap: 22px; }
   .steps3.four .step3 h3 { font-size: 19px; }
-  .maker-side { position: sticky; top: 92px; }
+  .maker-side { align-self: stretch; }
+  .maker-stick { position: sticky; top: 92px; }
 }
 .step3:nth-child(4) .num::before { --s2: rgba(89, 223, 176, .6); --s3: rgba(89, 223, 176, .3); }
 
@@ -810,4 +813,5 @@ body[data-view="practice"] .foot, body[data-view="preview"] .foot { padding-bott
   .agroups .arow > .pair { margin-left: 72px; }
   .libcta { margin-top: 40px; }
   .hairpick { width: 60px; }
+  .maker-about { grid-template-columns: 1fr; }
 }
