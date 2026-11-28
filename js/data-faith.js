@@ -1,4 +1,4 @@
-/* Choice Ripple — Faith and Spiritual Growth: 16 scenarios in four topics.
+/* ChoiceLab — Faith and Spiritual Growth: 16 scenarios in four topics.
    Faith-based practice that families, churches and schools can choose to assign.
    Same shape as the scenarios in data.js; loaded after it. */
 CRData.add([

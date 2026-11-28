@@ -1,4 +1,4 @@
-/* Choice Ripple — topics and the Everyday Life scenarios (the Faith and Spiritual Growth
+/* ChoiceLab — topics and the Everyday Life scenarios (the Faith and Spiritual Growth
    scenarios are in data-faith.js).
    Every scenario has its own prompt, its own three responses, and for each response:
    impact (what could happen) → next (a supportive next step) → close (the line to keep).

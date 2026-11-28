@@ -1,5 +1,5 @@
-Choice Ripple
-=============
+ChoiceLab
+=========
 A practice app for students and the adults who support them. Students
 practice real-life situations, choose how they would respond, see what could
 happen, and write a short reflection. Parents and teachers assign practice
@@ -102,5 +102,8 @@ Notes
 * The sample family (Maya and Leo) and the sample class (Grade 7 - Period 3,
   plus a small Reflection room group) are demo data so the parent and
   teacher views have something to show on first open.
-* The original ChoiceLab prototype is untouched in
+* The project folder, the GitHub repository and the saved-data key keep
+  the earlier working name (ChoiceRipple), so existing links and saved
+  progress keep working.
+* The first ChoiceLab prototype is untouched in
   ..\ChoiceLab_Prototype_Download\

@@ -1,4 +1,4 @@
-/* Choice Ripple — anime-style scene illustrations, drawn as SVG.
+/* ChoiceLab — anime-style scene illustrations, drawn as SVG.
    Every scenario gets its own small scene: characters, pose, and emotion are
    composed per situation in SCENES at the bottom of this file. */
 (function (global) {

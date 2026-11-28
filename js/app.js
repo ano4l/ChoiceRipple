@@ -1,4 +1,4 @@
-/* Choice Ripple — app logic: profiles, student practice flow, parent and teacher progress. */
+/* ChoiceLab — app logic: profiles, student practice flow, parent and teacher progress. */
 (function () {
   'use strict';
   var D = window.CRData, A = window.CRArt;
@@ -1000,7 +1000,7 @@
         }
         break;
       case 'reset':
-        if (window.confirm('Reset Choice Ripple to the sample family? This clears all profiles and progress saved in this browser.')) {
+        if (window.confirm('Reset ChoiceLab to the sample family? This clears all profiles and progress saved in this browser.')) {
           state = migrate(seed()); save(); play = null; sessionDone = []; go('#/');
         }
         break;

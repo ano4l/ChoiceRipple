@@ -1,4 +1,4 @@
-/* Choice Ripple — “midnight”: the original ChoiceLab look (deep navy, violet, cyan, glass), finished properly.
+/* ChoiceLab — “midnight”: the original prototype’s look (deep navy, violet, cyan, glass), finished properly.
    Phone-first, single dark theme. Display: Bricolage Grotesque · Text: Atkinson Hyperlegible Next (system fallbacks offline). */
 @property --p { syntax: "<number>"; inherits: true; initial-value: 0; }
 :root {
@@ -96,6 +96,7 @@ main:focus { outline: none; }
 .brand:hover { color: #fff; }
 .brand-mark { width: 40px; height: 40px; border-radius: 13px; background: linear-gradient(140deg, #916fff, #35c7d6); display: grid; place-items: center; flex: none; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 6px 22px -4px rgba(120, 95, 255, .6); transition: transform .25s cubic-bezier(.2, .7, .2, 1); }
 .brand:hover .brand-mark { transform: rotate(-6deg) scale(1.04); }
+.brand b { font-weight: inherit; color: var(--violet-bright); }
 .brand small { display: block; font: 600 12px/1.3 var(--font); color: var(--muted); letter-spacing: .01em; margin-top: 2px; }
 .roles { display: flex; gap: 2px; background: rgba(20, 26, 51, .9); padding: 4px; border-radius: 15px; border: 1px solid var(--line); }
 .roles a { text-decoration: none; color: #b4bdd6; font-weight: 700; font-size: 15px; padding: 8px 15px; border-radius: 11px; min-height: 44px; display: inline-flex; align-items: center; transition: background .15s, color .15s; }
